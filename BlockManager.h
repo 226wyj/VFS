@@ -14,6 +14,7 @@
 #define ValidIndexSize 15           //索引组内
 #define SUPER_POS 0                 //超级块位置
 #define INODE_SIZE 64
+#define USER_SIZE 64
 
 
 #include <vector>
@@ -36,6 +37,8 @@ struct Super_Block{
 
     int ValidData[ValidSize+1];                                 //空闲数据栈 4*51bytes
     int ValidIndex[ValidIndexSize+1];                           //空闲索引栈 64bytes
+
+    int user_info[8];                                           //用户信息 32bytes
 
 
     int free_data;                                              //空闲数据块数量 4bytes
@@ -62,7 +65,10 @@ struct Super_Block{
         free_data = MAX_BLOCK-data_begin;
         iNode_count = 0;
 
-        if(user)user_count = 0;
+        if(user){
+            memset(this->user_info,-1, sizeof(int)*8);
+            user_count = 0;
+        }
 
 
         if(new_user_size>0){
@@ -81,6 +87,7 @@ struct Super_Block{
             //栈初始化
             fread(ValidData, sizeof(int),ValidSize+1,disk);
             fread(ValidIndex, sizeof(int),ValidIndexSize+1,disk);
+            fread(user_info, sizeof(int),8,disk);
             //起始位置初始化
             fread(&user_begin, sizeof(int),1,disk);
             fread(&index_begin, sizeof(int),1,disk);
@@ -97,6 +104,7 @@ struct Super_Block{
             //初始化栈
             memset(ValidData,0,ValidSize+1* sizeof(int));
             memset(ValidIndex,0,ValidIndexSize+1* sizeof(int));
+            memset(user_info,-1,8* sizeof(int));
             //初始化起始位置
             user_begin = SUPER_POS+1;
             index_begin = user_begin + USER_AREAR_SIZE;
@@ -116,6 +124,7 @@ struct Super_Block{
             //栈写回
             fwrite(ValidData, sizeof(int),ValidSize+1,disk);
             fwrite(ValidIndex, sizeof(int),ValidIndexSize+1,disk);
+            fwrite(user_info, sizeof(int),8,disk);
             //起始位置写回
             fwrite(&user_begin, sizeof(int),1,disk);
             fwrite(&index_begin, sizeof(int),1,disk);
@@ -145,6 +154,10 @@ struct Super_Block{
         for(int i=1;i<ValidSize+1;i++){
             if(i%10==0)std::cout << std::endl;
             out << "file[" << i << "]=" << b.ValidData[i] << ' ';
+        }
+        out << std::endl << "user info:" << std::endl;
+        for(int i=0;i<8;i++){
+            out << "user[" << i << "]=" << b.user_info[i] << ' ';
         }
         std::cout << std::endl;
         out << std::endl <<"free data:" << b.free_data << std::endl << "free index:" << b.free_index << std::endl;
@@ -219,6 +232,8 @@ public:
     std::vector<int> AllocateIndexBlcoks(int count);            //分配多个索引块
     int AllocateDataBlock();                                    //分配一个数据块
     int AllocateIndexBlock();                                   //分配一个索引块
+    int AllocateUser();                                         //分配一个用户
+    void FreeUser(int id);                                      //释放一个用户
     void FreeDataBlock(int pos);                                //释放一个数据块
     void FreeIndexBlock(int pos);                               //释放一个索引块
     void FreeDataBlocks(const std::vector<int>& blockseq);      //释放多个数据块
@@ -230,6 +245,10 @@ public:
 
 
 
+
+
+    void WriteUser(int id,void* buffer);
+    void* ReadUser(int id);
     void WriteBlock(int pos,void* buffer);                      //写入整块磁盘
     void WriteBlock(int pos,int begin,int size,void* buffer);   //写磁盘块 pos:磁盘块位置 begin:起始位置 end:结束位置 buffer要写的数据
     void* ReadBlock(int pos,int begin,int size);                //读磁盘块 pos:磁盘块位置 begin:起始位置 size大小 返回读取数据

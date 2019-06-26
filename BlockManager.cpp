@@ -13,6 +13,7 @@
 #define IndexSize  128                                      //索引区大小
 #define DataSize MAX_BLOCK-IndexSize
 #define INODE_SIZE 64
+#define USER_SIZE 64
 
 
 
@@ -78,7 +79,20 @@ std::vector<int> BlockManager::AllocateIndexBlcoks(int count) {
     }
     return res;
 }
-
+//分配用户
+int BlockManager::AllocateUser() {
+    for(int i=0;i<8;i++){
+        if(superBlock.user_info[i] == -1){
+            superBlock.user_info[i] = i;
+            return i;
+        }
+    }
+    return -1;
+}
+//释放用户 参数:uid
+void BlockManager::FreeUser(int id) {
+    superBlock.user_info[id] = -1;
+}
 //释放数据块
 //可能会有问题如果已经是空闲块可能会重复释放
 void BlockManager::FreeDataBlocks(const std::vector<int> &blockseq) {
@@ -214,6 +228,22 @@ void BlockManager::WriteIndexBlock(int pos, void *buffer) {
 
     WriteBlock(row+IndexBegin,line*INODE_SIZE,INODE_SIZE,buffer);
 
+}
+//写用户信息
+void BlockManager::WriteUser(int id, void *buffer) {
+    WriteBlock(UserBegin,id*USER_SIZE,USER_SIZE,buffer);
+}
+//读取用户信息
+void *BlockManager::ReadUser(int id) {
+    if(id < 0 || id >= 8 )return nullptr;
+
+    void* buf = ReadBlock(UserBegin,id*USER_SIZE,USER_SIZE);
+
+    if(buf!= nullptr){
+        return buf;
+    }
+
+    return nullptr;
 }
 //读取pos位置块的数据  需要free
 void *BlockManager::ReadBlock(int pos) {
@@ -420,6 +450,10 @@ void BlockManager::InitDisk(int size) {
 
     free(block);
 }
+
+
+
+
 
 
 
