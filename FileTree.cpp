@@ -3,3 +3,7 @@
 //
 
 #include "FileTree.h"
+
+void FileTree::VisualTree(FNode *root) {
+
+}

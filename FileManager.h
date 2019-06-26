@@ -6,6 +6,7 @@
 #define FILESYSTEM_FILEMANAGER_H
 
 #include "BlockManager.h"
+#include "FileTree.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -80,7 +81,7 @@ struct sysopen{
 //用户打开表表项
 struct usropen{
     uint u_uid;			            //用户ID
-    char filename[20];              //文件名
+    std::string filename;           //文件名
     Mod u_mode;                     //打开方式
     uint sys_pos;                   //对应的系统打开文件表入口
 };
@@ -97,7 +98,7 @@ struct usr{
 
 
 
-    usr(Mod uright,const std::string& uname,const std::string psd){
+    usr(Mod uright,const std::string& uname,const std::string& psd){
         this->uright = uright;
         strcpy(usr_name,&uname[0]);
         strcpy(password,&psd[0]);
@@ -120,35 +121,36 @@ struct Blockinfo{
 class FileManager {
 private:
 
-    std::unordered_map<int,int> user_sys;
-    std::vector<sysopen> sys_open_table;
-    std::vector<usropen> user_open_table;
+
+    BlockManager* bm;                                   //磁盘管理器
+    FileTree *catalogue_tree;                           //目录树
+
+    std::unordered_map<int,int> user_sys;               //系统打开表和用户打开表之间的映射关系
+    std::vector<sysopen> sys_open_table;                //系统打开表
+    std::vector<usropen> user_open_table;               //用户打开表
 
 
+    usr* cur_usr;                                       //当前使用系统的用户
 
-    BlockManager* bm;
+    void table_init();                                  //系统表初始化
+    void table_back();                                  //系统表写回
 
-    usr* cur_usr;
-
-    int sys_index;                                      // 系统打开文件表当前空闲位置
-    int usr_index;                                      // 用户打开文件表当前空闲位置
-    void readUsr();                                     // 初始化用户信息表
-    int usrExists(char* name);                          // 判断用户名是否已经存在
 public:
-    FileManager();
+    explicit FileManager(){
+        bm = new BlockManager();
+        cur_usr = nullptr;
+        table_init();
+    }
+    ~FileManager(){
+        table_back();
+    }
+
 
 
     bool vertify_usr(const std::string& uname,const std::string& pwd);
     int create_usr(const std::string& uname,const std::string& pwd,Mod right);
 
 
-
-    void signUp();                                      // 注册
-    int open(char* filename, Mod mode);                 // 打开指定文件
-    inode* ialloc();                                    // 磁盘i节点的分配
-    void ifree(uint di_no);                             // 磁盘i节点的释放
-    inode* iget(uint di_no);                            // 内存i节点的分配
-    void iput(inode* di_no);                            // 内存i节点的释放
 };
 
 

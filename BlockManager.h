@@ -171,7 +171,6 @@ struct Super_Block{
 
 };
 
-
 class BlockManager {
 private:
     Super_Block superBlock{};
@@ -277,6 +276,5 @@ public:
 
 
 };
-
 
 #endif //FILESYSTEM_BLOCKMANAGER_H

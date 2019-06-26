@@ -283,8 +283,6 @@ void *BlockManager::ReadIndexBlock(int pos) {
 //读取pos位置块begin位置size大小的数据 需要free
 
 
-
-
 //工具函数
 void BlockManager::FirstData(int end,int size) {
     if(size<ValidSize){
@@ -450,11 +448,6 @@ void BlockManager::InitDisk(int size) {
 
     free(block);
 }
-
-
-
-
-
 
 
 
