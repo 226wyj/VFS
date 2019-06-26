@@ -125,21 +125,21 @@ class FileManager {
 private:
 
 
-    BlockManager* bm;                                   //磁盘管理器
-    FileTree *catalogue_tree;                           //目录树
+    BlockManager* bm;                                       //磁盘管理器
+    FileTree *catalogue_tree;                               //目录树
 
 
 
-    std::unordered_map<int,int> user_sys;                           //系统打开表和用户打开表之间的映射关系
-    std::unordered_map<int,sysopen> sys_open_table;                 //系统打开表
-    std::unordered_map<int,std::vector<usropen>> user_open_table;   //用户打开表
+    std::unordered_map<int,int> user_sys;                   //系统打开表和用户打开表之间的映射关系
+    std::unordered_map<int,sysopen> sys_open_table;         //系统打开表
+    std::vector<usropen> user_open_table;                   //用户打开表
 
 
     usr* cur_usr;                                           //当前使用系统的用户
     std::unordered_map<std::string,dinode>* cur_catalogue;  //当前目录表
 
-    void table_init();                                  //系统表初始化
-    void table_back();                                  //系统表写回
+    void table_init();                                      //系统表初始化
+    void table_back();                                      //系统表写回
 
 public:
 
