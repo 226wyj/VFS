@@ -11,14 +11,18 @@
 
 struct FNode{
 
+    std::string filename;
+
+
+
 };
 
 class FileTree {
 private:
     FNode* root;
 public:
-    void VisualTree(FNode* root);
-    void Init
+    void VisualTree(const FNode* root);
+    void Init(const dinode& root);
 };
 
 

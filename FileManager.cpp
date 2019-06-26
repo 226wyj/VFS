@@ -2,9 +2,10 @@
 // Created by wulinze on 19-6-21.
 //
 
-#include <cstring>
 #include "FileManager.h"
 #include "BlockManager.h"
+#include <cstring>
+
 
 
 #define SuperBlcok this->bm->getSuperBlock()
@@ -13,13 +14,6 @@ using namespace std;
 #define DINODENUM BLOCK_SIZE / DINODE_SIZE  // 每块可以容纳的磁盘i节点数量
 
 
-void FileManager::table_init() {
-
-}
-
-void FileManager::table_back() {
-
-}
 
 
 bool FileManager::vertify_usr(const std::string& uname, const std::string& pwd) {
@@ -91,5 +85,38 @@ int FileManager::create_usr(const std::string &uname, const std::string &pwd, Mo
     return -1;
 }
 
+inode *FileManager::open_file(const std::string& filename) {
+    return nullptr;
+}
+
+void FileManager::close_file(inode *file) {
+
+}
+
+inode *FileManager::create_file(const string& val, const std::string& filename, dinode *info) {
+    return nullptr;
+}
+
+void FileManager::del_file(const std::string& filename) {
+
+}
+
+void FileManager::write_file(const std::string& filname, const std::string& val) {
+
+}
+
+std::string FileManager::read_file(const std::string& filename) {
+
+}
 
 
+
+
+
+void FileManager::table_init() {
+
+}
+
+void FileManager::table_back() {
+
+}

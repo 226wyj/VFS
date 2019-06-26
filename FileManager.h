@@ -24,6 +24,8 @@
 
 struct dinode;
 struct inode;
+struct Blockinfo;
+
 
 enum class Mod:char{
     ___=0x00,__x=0x01,_w_=0x02,_wx=0x03,r__=0x04,r_x=0x05,rw_=0x06,rwx=0x07
@@ -41,7 +43,7 @@ struct dinode{
     Type di_type;                   //类型
     uint di_uid;			        //用户id
     uint di_size;			        //文件大小
-    uint di_first;                  //文件首块
+    Blockinfo di_first            //文件对应首块
 
     time_t create_time;             //创建时间
     time_t rencent_open;            //最近打开时间
@@ -52,7 +54,8 @@ struct dinode{
         di_type = Type ::dir;
         di_uid = uid;
         di_size = 1;
-        di_first = data;
+        di_first.index = data;
+        di_first.type = BlockType ::data;
 
         create_time = time(nullptr);
         rencent_open = time(nullptr);
@@ -125,17 +128,22 @@ private:
     BlockManager* bm;                                   //磁盘管理器
     FileTree *catalogue_tree;                           //目录树
 
+
+
     std::unordered_map<int,int> user_sys;               //系统打开表和用户打开表之间的映射关系
     std::vector<sysopen> sys_open_table;                //系统打开表
     std::vector<usropen> user_open_table;               //用户打开表
 
 
     usr* cur_usr;                                       //当前使用系统的用户
+    std::unordered_map<std::string,int>* cur_catalogue; //当前目录表
 
     void table_init();                                  //系统表初始化
     void table_back();                                  //系统表写回
 
 public:
+
+
     explicit FileManager(){
         bm = new BlockManager();
         cur_usr = nullptr;
@@ -147,8 +155,15 @@ public:
 
 
 
-    bool vertify_usr(const std::string& uname,const std::string& pwd);
-    int create_usr(const std::string& uname,const std::string& pwd,Mod right);
+    inode* open_file(const std::string& filename);                                           //打开文件
+    void close_file(inode* file);                                                            //关闭文件
+    inode* create_file(const std::string& val="",const std::string& filename,dinode* info);  //创建文件
+    void del_file(const std::string& filename);                                              //删除文件
+    void write_file(const std::string& filname,const std::string& val);                      //写文件
+    std::string read_file(const std::string& filename);                                      //读文件
+
+    bool vertify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
+    int create_usr(const std::string& uname,const std::string& pwd,Mod right);               //创建用户
 
 
 };

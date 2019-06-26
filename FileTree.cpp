@@ -4,6 +4,11 @@
 
 #include "FileTree.h"
 
-void FileTree::VisualTree(FNode *root) {
+
+void FileTree::VisualTree(const FNode *root) {
+
+}
+
+void FileTree::Init(const dinode &root) {
 
 }
