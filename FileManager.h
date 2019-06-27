@@ -183,6 +183,7 @@ private:
     inode* find_last_dir(const std::string& dirname);       //在目录表中const 找到上一层&目录的i节点
     int checkMode(const std::string& filename, Mod mode);   //检测用户权限
     uint getFid(const std::string& filename);               //获得文件名对应的id
+    bool is_exist_usr(const std::string& usrname);           //验证用户名是否重复
 public:
 
 
@@ -192,6 +193,7 @@ public:
         table_init();
     }
     ~FileManager(){
+        delete(bm);
         table_back();
     }
 
@@ -208,7 +210,10 @@ public:
 
     ///已完成
     bool verify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
-    int create_usr(const std::string& uname,const std::string& pwd,Mod right);               //创建用户
+    int create_usr(const std::string& uname,const std::string& pwd,Mod right);              //创建用户
+
+
+    void format();
 
 
 };

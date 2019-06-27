@@ -1,35 +1,28 @@
 #include <iostream>
-#include "BlockManager.h"
+#include "FileManager.h"
 
 using namespace std;
 
 
 int main() {
+    auto *fm = new FileManager();
 
-    BlockManager* bm = new BlockManager();
-
-    int tmp;
-    int* buf;
-    int data[16];
-
-    cout << bm->getSuperBlock() << endl;
-
-
-
-    for(int i=0;i<10;i++) {
-//        if((i+1)%10==0)bm->FreeBlock(tmp);
-        tmp = bm->AllocateDataBlock();
-         cout << "Data Allocate:" << tmp << endl;
+    if(fm->create_usr("wu","980815",Mod::rwx) == -1){
+        cout << "创建失败" << endl;
+    } else{
+        cout << "创建成功" << endl;
     }
-    bm->Format();
-
-    cout << bm->getSuperBlock() << endl;
-
-    if(tmp >= 0){
-
-        bm->WriteBlock(tmp,0, sizeof(int)*50,buf);
+    if(fm->verify_usr("wu","980815")){
+        cout << "登录成功" << endl;
+    } else{
+        cout << "用户信息错误" << endl;
     }
-    delete bm;
+
+//    fm->create_file("test.cpp");
+
+//    fm->format();
+
+    delete fm;
 
     return 0;
 }

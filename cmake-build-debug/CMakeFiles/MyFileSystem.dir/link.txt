@@ -1,1 +1,1 @@
-/usr/bin/g++  -g   CMakeFiles/MyFileSystem.dir/main.cpp.o CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o CMakeFiles/MyFileSystem.dir/FileManager.cpp.o  -o MyFileSystem 
+/usr/bin/c++  -g   CMakeFiles/MyFileSystem.dir/main.cpp.o CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o CMakeFiles/MyFileSystem.dir/FileManager.cpp.o  -o MyFileSystem 
