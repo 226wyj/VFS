@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-/home/wyj/Desktop/VFS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/wyj/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir
-/home/wyj/Desktop/VFS/cmake-build-debug/CMakeFiles/edit_cache.dir
-=======
-C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir
-C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
->>>>>>> 9c2fc85bbcde814a2865a1125a9371d4283235e4
+/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir
+/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/edit_cache.dir

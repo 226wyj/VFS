@@ -6,12 +6,11 @@
 #define FILESYSTEM_FILEMANAGER_H
 
 #include "BlockManager.h"
-#include "FileTree.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <cstring>
-#include <ctime>
+#include <time.h>
 
 
 
@@ -37,33 +36,49 @@ enum class Type:char{
 enum class BlockType:char{
     index=0x00,data=0x01
 };
+
+struct Blockinfo{
+    int index;
+
+    BlockType type;
+
+    Blockinfo(int data,BlockType type){
+        this->index = data;
+        this->type = type;
+    }
+    Blockinfo(){
+        index = -1;
+        type = BlockType ::data;
+    }
+};
+
 //磁盘i节点
 struct dinode{
-    uint di_number;                 //关联文件数，为0则删除该文件
-    Mod di_mode;		            //权限
-    Type di_type;                   //类型
-    uint di_uid;			        //用户id
-    uint di_size;			        //文件大小
-    Blockinfo di_first              //文件对应首块
+    uint di_number{};                 //关联文件数，为0则删除该文件
+    Mod di_mode;		              //权限
+    Type di_type;                     //类型
+    uint di_uid{};			          //用户id
+    uint di_size{};			          //文件大小
+    Blockinfo di_first;               //文件对应首块
+    time_t create_time{};             //创建时间
+    time_t rencent_open{};            //最近打开时间
 
-    time_t create_time;             //创建时间
-    time_t rencent_open;            //最近打开时间
 
-    explicit dinode(uint uid,int data){
+
+    explicit dinode(uint uid, int data) : di_first(Blockinfo{data,BlockType ::data}) {
         di_number = 0;
         di_mode = Mod ::r__;
         di_type = Type ::dir;
         di_uid = uid;
         di_size = 1;
-        di_first.index = data;
-        di_first.type = BlockType ::data;
+
 
         create_time = time(nullptr);
         rencent_open = time(nullptr);
     }
+    explicit dinode()= default;
 
-    void operator = (const dinode& d)
-    {
+    void operator = (const dinode& d){
         di_number = d.di_number;
         di_mode = d.di_mode;
         di_type = d.di_type;
@@ -73,6 +88,7 @@ struct dinode{
         create_time = d.create_time;
         rencent_open = d.rencent_open;
     }
+
 };
 
 //内存i节点
@@ -80,9 +96,11 @@ struct inode{
 
     uint i_id;			            //内存i节点标识
     uint pos;                       //磁盘i节点块号
-//    uint offset;                    //磁盘i节点在块内的偏移量
+//    uint offset;                  //磁盘i节点在块内的偏移量
+
 
     dinode cur_node;
+
 
 };
 
@@ -126,12 +144,6 @@ struct usr{
         this->uright = usr1->uright;
     }
 };
-struct Blockinfo{
-    int index;
-
-    BlockType type;
-};
-
 // 目录表结构
 struct cur_dir{
     std::string filename;
@@ -149,7 +161,6 @@ private:
 
 
     BlockManager* bm;                                       //磁盘管理器
-    FileTree *catalogue_tree;                               //目录树
 
     std::string dir;                                                //用户所在当前目录名字
     std::unordered_map<std::string, std::vector<cur_dir> > catalog; //总目录表
@@ -169,10 +180,10 @@ private:
     void table_back();                                      //系统表写回
 
     ///基本完成，需要验证
-    inode* find_dir(std::string dirname);                   //根据文件名字在目录表中找到其对应i节点
-    inode* find_last_dir(std::string dirname);              //在目录表中找到上一层目录的i节点
-    int checkMode(std::string filename, Mod mode);          //检测用户权限
-    uint getFid(std::string filename);                      //获得文件名对应的id
+    inode* find_dir(const std::string& dirname);            //根据文件名字在目录表中找到其对应i节点
+    inode* find_last_dir(const std::string& dirname);       //在目录表中const 找到上一层&目录的i节点
+    int checkMode(const std::string& filename, Mod mode);   //检测用户权限
+    uint getFid(const std::string& filename);               //获得文件名对应的id
 public:
 
 
@@ -187,14 +198,14 @@ public:
 
 
 
-    inode* open_file(const std::string& filename, Mod mode);                                           //打开文件
+    inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
     void close_file(inode* file);                                                            //关闭文件
     void del_file(const std::string& filename);                                              //删除文件
     void write_file(const std::string& filname,const std::string& val);                      //写文件
     std::string read_file(const std::string& filename);                                      //读文件
 
     ///未验证，但基本完成
-    inode* create_file(const std::string& filename,dinode* info);           //创建文件
+    inode* create_file(const std::string& filename,dinode* info= nullptr);                   //创建文件
 
     ///已完成
     bool vertify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
