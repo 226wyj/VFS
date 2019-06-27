@@ -111,8 +111,8 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         exit(0);
     }
     // 判断是否已经打开
-    for(int i = 0; i < user_open_table.size(); i++){
-        if(user_open_table[i].filename == filename){
+    for(auto & i : user_open_table){
+        if(i.filename == filename){
             cout << "您已经打开该文件" <<endl;
             exit(0);
         }
@@ -268,14 +268,12 @@ inode* FileManager::find_last_dir(const std::string& dirname) {
         for(int i = 0; i < it->second.size(); i++){
             if(it->second[i].filename == dirname){
                 last_name = it->first;
-                goto found;
+                return find_dir(last_name);
             }
         }
         it++;
     }
     return nullptr;
-    found:
-    find_dir(last_name);
 }
 
 int FileManager::checkMode(const std::string& filename, Mod mode) {
