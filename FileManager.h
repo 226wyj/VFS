@@ -149,7 +149,6 @@ private:
 
 
     BlockManager* bm;                                       //磁盘管理器
-    FileTree *catalogue_tree;                               //目录树
 
     std::string dir;                                                //用户所在当前目录名字
     std::unordered_map<std::string, std::vector<cur_dir> > catalog; //总目录表
@@ -163,7 +162,7 @@ private:
 
 
     usr* cur_usr;                                           //当前使用系统的用户
-    std::unordered_map<std::string,dinode>* cur_catalogue;  //当前目录表
+    std::unordered_map<std::string,dinode>* cur_catalog;    //当前目录表
 
     void table_init();                                      //系统表初始化
     void table_back();                                      //系统表写回
@@ -197,7 +196,7 @@ public:
     inode* create_file(const std::string& filename,dinode* info);           //创建文件
 
     ///已完成
-    bool vertify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
+    bool verify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
     int create_usr(const std::string& uname,const std::string& pwd,Mod right);               //创建用户
 
 

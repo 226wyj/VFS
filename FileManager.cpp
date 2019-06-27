@@ -15,8 +15,8 @@ using namespace std;
 
 
 
-
-bool FileManager::vertify_usr(const std::string& uname, const std::string& pwd) {
+// 验证用户
+bool FileManager::verify_usr(const std::string& uname, const std::string& pwd) {
 
     if(uname.length() > 10 || pwd.length() > 10)return false;
     else{
@@ -47,6 +47,7 @@ bool FileManager::vertify_usr(const std::string& uname, const std::string& pwd) 
 
 }
 
+// 创建用户
 int FileManager::create_usr(const std::string &uname, const std::string &pwd, Mod right) {
 
     if(uname.length() > 10 || pwd.length()>10)
@@ -85,7 +86,7 @@ int FileManager::create_usr(const std::string &uname, const std::string &pwd, Mo
     return -1;
 }
 
-
+// 打开文件
 inode *FileManager::open_file(const std::string& filename, Mod mode) {
     Mod fileMode;
     inode* finode;
@@ -107,6 +108,9 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         exit(0);
     }
     auto it_uopen = user_open_table.find(cur_usr->uid);
+    for(int i = 0; i < user_open_table.size(); i++){
+        
+    }
     if(it_uopen != user_open_table.end()){
         cout << "该文件已经打开，不能重复打开" << endl;
         exit(0);
@@ -140,6 +144,8 @@ void FileManager::close_file(inode *file) {
 
 // 创建文件
 inode *FileManager::create_file(const std::string& filename, dinode *info) {
+    // 检测当前目录是否已经存在同名文件
+
     // 分配数据块
     int data_pos = bm->AllocateDataBlock();
 
