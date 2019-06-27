@@ -78,6 +78,41 @@ struct dinode{
     }
     explicit dinode()= default;
 
+    std::unordered_map<std::string,int> getChildren(BlockManager* bm){
+        std::unordered_map<std::string,int> res;
+
+        if(this->di_type != Type::dir){
+            return {};
+        } else{
+            int cur = 0;
+            int* size = (int *)bm->ReadBlock(this->di_first.index,cur, sizeof(int));
+            cur += sizeof(int);
+            for(int i=0;i<*size;i++){
+                std::string name;
+                int inode_pos;
+                name = (char *)bm->ReadBlock(di_first.index,cur, 20);
+                cur += 20;
+                inode_pos = *(int *)bm->ReadBlock(di_first.index,cur, sizeof(int));
+                cur += sizeof(int);
+                res.insert(std::make_pair(name,inode_pos));
+            }
+
+            return res;
+        }
+
+    }
+    std::unordered_map<std::string,int> getCurrentCatalogue(BlockManager* bm,uint pos){
+        if(this->di_type == Type::dir){
+            std::unordered_map<std::string,int> res = getChildren(bm);
+
+            res.insert(std::make_pair("../",pos));
+
+            return res;
+        } else{
+            return {};
+        }
+    }
+
     void operator = (const dinode& d){
         di_number = d.di_number;
         di_mode = d.di_mode;
@@ -116,7 +151,6 @@ struct usropen{
     uint u_uid;			            //用户ID
     std::string filename;           //文件名
     Mod u_mode;                     //打开方式
-//    uint sys_pos;                   //对应的系统打开文件表入口
 };
 
 //用户
@@ -129,6 +163,30 @@ struct usr{
 
     uint dir_pos{};                 //初始目录inode位置
 
+
+
+
+    friend std::ostream&operator<<(std::ostream& out,usr& user){
+
+        out << "uid:" << user.uid << std::endl;
+        out << "user name:" << user.usr_name << std::endl;
+        out << "password:" << user.password << std::endl;
+        switch (user.uright){
+
+            case Mod::___:std::cout << "___"; break;
+            case Mod::__x:std::cout << "__x";break;
+            case Mod::_w_:std::cout << "_w_";break;
+            case Mod::_wx:std::cout << "_wx";break;
+            case Mod::r__:std::cout << "r__";break;
+            case Mod::r_x:std::cout << "r_x";break;
+            case Mod::rw_:std::cout << "rw_";break;
+            case Mod::rwx:std::cout << "rwx";break;
+            default:std::cout << "wrong" << std::endl;
+        }
+        return out;
+        out << "directory pos:" << user.dir_pos << std::endl;
+        return out;
+    }
 
 
     usr(Mod uright,const std::string& uname,const std::string& psd){
@@ -180,11 +238,13 @@ private:
     void table_back();                                      //系统表写回
 
     ///基本完成，需要验证
-    inode* find_dir(const std::string& dirname);            //根据文件名字在目录表中找到其对应i节点
-    inode* find_last_dir(const std::string& dirname);       //在目录表中const 找到上一层&目录的i节点
     int checkMode(const std::string& filename, Mod mode);   //检测用户权限
-    uint getFid(const std::string& filename);               //获得文件名对应的id
-    bool is_exist_usr(const std::string& usrname);           //验证用户名是否重复
+    bool is_exist_usr(const std::string& usrname);          //验证用户名是否重复
+    inode createInode(int di_pos, dinode di);               // 创建内存i节点
+    void updateLink(int fid, int pos);                      // 更新显式链接表
+    void updateLimits(uint fid, Mod mod);                   // 更新用户权限表        
+    void updateCatalog(std::string filename, inode* iNode); // 更新目录表
+    std::unordered_map<std::string, dinode>* getCurCatalog();// 获取当前目录               
 public:
 
 
@@ -200,18 +260,26 @@ public:
 
 
 
-    inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
-    void close_file(inode* file);                                                            //关闭文件
     void del_file(const std::string& filename);                                              //删除文件
     void write_file(const std::string& filname,const std::string& val);                      //写文件
     std::string read_file(const std::string& filename);                                      //读文件
 
     ///未验证，但基本完成
     inode* create_file(const std::string& filename,dinode* info= nullptr);                   //创建文件
+    dinode* create_file(const std::string& filename,bool index,dinode* info= nullptr,bool dir=false);
+    inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
+    void close_file(std::string filename);                                                   //关闭文件
+    
+    ///接口
+    uint getFid(const std::string& filename);                                                //获得文件名对应的id
+    inode* find_last_dir(const std::string& dirname);                                        //根据文件名字在目录表中找到其上一层目录的i节点
+    inode* find_dir(const std::string& dirname);                                             //根据文件名字在目录表中找到其对应i节点
+    std::vector<int>* get_data_blocks(std::string filename);                                 //根据文件名获取其对应的数据块
 
     ///已完成
     bool verify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
     int create_usr(const std::string& uname,const std::string& pwd,Mod right);              //创建用户
+    void show_usr();
 
 
     void format();

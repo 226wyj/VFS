@@ -105,6 +105,12 @@
 		<Unit filename="/home/wulinze/CLionProjects/VFS/main.cpp">
 			<Option target="MyFileSystem"/>
 		</Unit>
+		<Unit filename="/home/wulinze/CLionProjects/VFS/shell.cpp">
+			<Option target="MyFileSystem"/>
+		</Unit>
+		<Unit filename="/home/wulinze/CLionProjects/VFS/shell.h">
+			<Option target="MyFileSystem"/>
+		</Unit>
 		<Unit filename="/home/wulinze/CLionProjects/VFS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

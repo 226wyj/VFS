@@ -10,9 +10,13 @@ CMakeFiles/MyFileSystem.dir/FileManager.cpp.o
  /home/wulinze/CLionProjects/VFS/FileManager.h
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o
  /home/wulinze/CLionProjects/VFS/BlockManager.h
+ /home/wulinze/CLionProjects/VFS/FileManager.h
  /home/wulinze/CLionProjects/VFS/FileSystem.cpp
  /home/wulinze/CLionProjects/VFS/FileSystem.h
 CMakeFiles/MyFileSystem.dir/main.cpp.o
  /home/wulinze/CLionProjects/VFS/BlockManager.h
  /home/wulinze/CLionProjects/VFS/FileManager.h
  /home/wulinze/CLionProjects/VFS/main.cpp
+CMakeFiles/MyFileSystem.dir/shell.cpp.o
+ /home/wulinze/CLionProjects/VFS/shell.cpp
+ /home/wulinze/CLionProjects/VFS/shell.h

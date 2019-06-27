@@ -7,7 +7,7 @@
 
 
 #include <string>
-#include "BlockManager.h"
+#include "FileManager.h"
 
 using namespace std;
 
@@ -15,9 +15,17 @@ using namespace std;
 
 class FileSystem {
 private:
-    BlockManager *Bm;
+    FileManager* fm;
     string current_path;
 public:
+
+    explicit FileSystem(){
+        this->fm = new FileManager();
+    }
+    ~FileSystem(){
+        delete(this->fm);
+    }
+
 //    bool login(string uname,string psd);     //用户登录
 //    bool logout();                           //用户登出
     void cp();                               //复制指令
@@ -29,6 +37,9 @@ public:
     void touch(string file_name);            //创建文件
     void open(string file_name);             //打开文件
     bool mount(string path);                 //系统挂载目录
+
+
+    void showUsers();
 };
 
 

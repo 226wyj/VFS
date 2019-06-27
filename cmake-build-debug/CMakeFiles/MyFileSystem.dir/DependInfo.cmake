@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/wulinze/CLionProjects/VFS/FileManager.cpp" "/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileManager.cpp.o"
   "/home/wulinze/CLionProjects/VFS/FileSystem.cpp" "/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o"
   "/home/wulinze/CLionProjects/VFS/main.cpp" "/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/main.cpp.o"
+  "/home/wulinze/CLionProjects/VFS/shell.cpp" "/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/shell.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

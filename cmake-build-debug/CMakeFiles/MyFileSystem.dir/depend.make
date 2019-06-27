@@ -9,10 +9,14 @@ CMakeFiles/MyFileSystem.dir/FileManager.cpp.o: ../FileManager.cpp
 CMakeFiles/MyFileSystem.dir/FileManager.cpp.o: ../FileManager.h
 
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o: ../BlockManager.h
+CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o: ../FileManager.h
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o: ../FileSystem.cpp
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o: ../FileSystem.h
 
 CMakeFiles/MyFileSystem.dir/main.cpp.o: ../BlockManager.h
 CMakeFiles/MyFileSystem.dir/main.cpp.o: ../FileManager.h
 CMakeFiles/MyFileSystem.dir/main.cpp.o: ../main.cpp
+
+CMakeFiles/MyFileSystem.dir/shell.cpp.o: ../shell.cpp
+CMakeFiles/MyFileSystem.dir/shell.cpp.o: ../shell.h
 

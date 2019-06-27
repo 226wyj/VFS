@@ -8,6 +8,7 @@
 
 
 
+
 #define SuperBlcok this->bm->getSuperBlock()
 
 using namespace std;
@@ -111,8 +112,8 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         exit(0);
     }
     // 判断是否已经打开
-    for(auto & i : user_open_table){
-        if(i.filename == filename){
+    for(int i = 0; i < user_open_table.size(); i++){
+        if(user_open_table[i].filename == filename){
             cout << "您已经打开该文件" <<endl;
             exit(0);
         }
@@ -134,23 +135,39 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         sysopen sOpen = {1, fid, find_dir(filename)};
         sys_open_table.insert(make_pair(fid, sOpen));
     }
+    // 更新用户-系统打开表
     user_sys.insert(make_pair(cur_usr->uid, fid));
-
 }
 
-void FileManager::close_file(inode *file) {
-
+// 关闭文件
+void FileManager::close_file(std::string filename) {
+    // 查找用户打开表，判断文件是否打开
+    int flag = 0;
+    auto i = user_open_table.begin();
+    while(i != user_open_table.end()){
+        if(i->u_uid == cur_usr->uid && i->filename == filename){
+            flag = 1;
+            break;
+        }
+        i++;
+    }
+    if(!flag){
+        cout << "错误！当前文件并没有被打开" << endl;
+        exit(0);
+    }
+    // 删除用户打开表中的对应表项
+    user_open_table.erase(i);
+    //　删除usr-sys表中对应的链接
+    user_sys.erase(cur_usr->uid);
 }
 
 // 创建文件
 inode *FileManager::create_file(const std::string& filename, dinode *info) {
 
-
-
+    // 该文件已经存在
     if(this->cur_catalog->find(filename)!=cur_catalog->end()){
         return nullptr;
     }
-
 
     // 分配数据块
     int data_pos = bm->AllocateDataBlock();
@@ -169,57 +186,22 @@ inode *FileManager::create_file(const std::string& filename, dinode *info) {
     free(temp_dinode);
 
     // 构造对应的内存i节点
-    inode iNode;
-    iNode.i_id = ID++;
-    iNode.pos = di_pos;
-//    iNode.offset = ;                                       // 填不出来，暂时丢弃
-    iNode.cur_node = dInode;
+    inode iNode = createInode(di_pos, dInode);
 
     // 更新文件名-文件id映射表
     file_id.insert(make_pair(filename, iNode.i_id));
 
     // 显式链接表新增表项
-    vector<int> v_link;
-    v_link.push_back(data_pos);
-    file_link.insert(make_pair(data_pos, v_link));
+    updateLink(iNode.i_id, di_pos);
 
     // 用户权限表更新
-    usr_limit temp_limit = {iNode.i_id, dInode.di_mode};
-    vector<usr_limit> v_limit;
-    v_limit.push_back(temp_limit);
-    auto iter_limit = limits.find(cur_usr->uid);  // 查找用户是否在权限表中出现过
-    if(iter_limit == limits.end()){
-        limits.insert(make_pair(cur_usr->uid, v_limit));
-    }
-    else{
-        limits[cur_usr->uid].push_back(temp_limit);
-    }
+    updateLimits(iNode.i_id, dInode.di_mode);
 
     // 目录表新增表项
-    cur_dir temp_dir = {filename, &iNode};
-    inode* current_dir = find_dir(dir);
-    if(current_dir == nullptr){
-        cout << "无法获取当前目录!" << endl;
-        exit(0);
-    }
-    inode* last_dir = find_last_dir(dir);
-    if(last_dir == nullptr){
-        cout << "无法获取上层目录!" << endl;
-        exit(0);
-    }
-    cur_dir temp_cur_dir = {".", current_dir};
-    cur_dir temp_las_dir = {"..", last_dir};
-    vector<cur_dir> v_dir;
-    v_dir.push_back(temp_dir);
-    v_dir.push_back(temp_cur_dir);
-    v_dir.push_back(temp_las_dir);
-    auto iter_dir = catalog.find(dir);  // 在目录表中查找是否包含当前目录
-    if(iter_dir == catalog.end()){
-        catalog.insert(make_pair(dir, v_dir));
-    }
-    else{
-        catalog[dir].push_back(temp_dir);
-    }
+    updateCatalog(filename, &iNode);
+    
+    // 返回新建文件的内存i节点
+    return &iNode;
 }
 
 void FileManager::del_file(const std::string& filename) {
@@ -276,6 +258,7 @@ inode* FileManager::find_last_dir(const std::string& dirname) {
     return nullptr;
 }
 
+// 检测权限
 int FileManager::checkMode(const std::string& filename, Mod mode) {
     auto iter_uid = limits.find(cur_usr->uid);
     auto iter_fid = file_id.find(filename);
@@ -363,6 +346,7 @@ void FileManager::format() {
     bm->Format(true);
 }
 
+// 判断用户是否存在
 bool FileManager::is_exist_usr(const string& usrname) {
     if(usrname.length() > 10)return false;
     else{
@@ -385,5 +369,135 @@ bool FileManager::is_exist_usr(const string& usrname) {
 
         return false;
 
+    }
+}
+
+// 通过filename获取文件包含的所有数据块
+std::vector<int>* FileManager::get_data_blocks(std::string filename) {
+    uint fid = getFid(filename);
+    auto it_file = file_link.find(fid);
+    if(it_file == file_link.end()){
+        cout << "该文件不在file_link表中" << endl;
+        exit(0);
+    }
+    return &(it_file->second);
+}
+
+// 根据磁盘i节点生成对应的内存i节点
+inode FileManager::createInode(int di_pos, dinode di){
+    inode iNode;
+    iNode.i_id = ID++;
+    iNode.pos = di_pos;
+    iNode.cur_node = di;
+    return iNode;
+}           
+
+// 显式链接表新增表项
+void FileManager::updateLink(int fid, int pos){
+    vector<int> v;
+    v.push_back(pos);
+    auto iter = file_link.find(fid);
+    if(iter == file_link.end()){
+        file_link.insert(make_pair(fid, v));
+    }
+    else{
+        iter->second.push_back(pos);
+    }
+}        
+
+// 用户权限表更新
+void FileManager::updateLimits(uint fid, Mod mod){
+    usr_limit temp_limit = {fid, mod};
+    vector<usr_limit> v_limit;
+    v_limit.push_back(temp_limit);
+    auto iter_limit = limits.find(cur_usr->uid);  // 查找用户是否在权限表中出现过
+    if(iter_limit == limits.end()){
+        limits.insert(make_pair(cur_usr->uid, v_limit));
+    }
+    else{
+        limits[cur_usr->uid].push_back(temp_limit);
+    }
+
+}                                    
+
+// 目录表更新
+void FileManager::updateCatalog(std::string filename, inode* iNode){
+    cur_dir temp_dir = {filename, iNode};
+    inode* current_dir = find_dir(dir);
+    if(current_dir == nullptr){
+        cout << "无法获取当前目录!" << endl;
+        exit(0);
+    }
+    inode* last_dir = find_last_dir(dir);
+    if(last_dir == nullptr){
+        cout << "无法获取上层目录!" << endl;
+        exit(0);
+    }
+    cur_dir temp_cur_dir = {".", current_dir};
+    cur_dir temp_las_dir = {"..", last_dir};
+    vector<cur_dir> v_dir;
+    v_dir.push_back(temp_dir);
+    v_dir.push_back(temp_cur_dir);
+    v_dir.push_back(temp_las_dir);
+    auto iter_dir = catalog.find(dir);  // 在目录表中查找是否包含当前目录
+    if(iter_dir == catalog.end()){
+        catalog.insert(make_pair(dir, v_dir));
+    }
+    else{
+        iter_dir->second.push_back(temp_dir);
+    }
+}               
+
+dinode *FileManager::create_file(const std::string &filename, bool index, dinode *info,bool isdir) {
+
+    if(index){
+        int inode_block,data_block;
+        inode_block = bm->AllocateIndexBlock();
+        data_block = bm->AllocateDataBlock();
+
+        auto *new_dinode = new dinode(cur_usr->uid,data_block);
+        void * buf = malloc(INODE_SIZE);
+        memcpy(buf,new_dinode, sizeof(dinode));
+
+        if(!isdir){
+            new_dinode->di_type = Type ::normal;
+        } else{
+            bm->WriteIndexBlock(inode_block,buf);
+            bm->WriteBlock(data_block,0, sizeof(int),&new_dinode->di_size);
+        }
+
+        free(buf);
+
+        return new_dinode;
+
+    } else{
+        return nullptr;
+    }
+
+
+}
+
+// 获取当前目录 
+std::unordered_map<std::string, dinode>* FileManager::getCurCatalog(){
+    auto it = catalog.find(dir);
+    if(it == catalog.end()){
+        cout << "错误！目录表中无法找到当前目录" << endl;
+        exit(0);
+    }
+    else{
+        
+    }
+}
+
+void FileManager::show_usr() {
+    for(int i=0;i<8;i++){
+        if(SuperBlcok.user_info[i] != -1){
+            usr* temp_usr = (usr*)bm->ReadUser(i);
+
+            cout << *temp_usr << endl;
+
+            free(temp_usr);
+
+        }
     }
 }

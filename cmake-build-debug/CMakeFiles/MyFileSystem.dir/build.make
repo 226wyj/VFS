@@ -70,9 +70,22 @@ CMakeFiles/MyFileSystem.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MyFileSystem.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wulinze/CLionProjects/VFS/main.cpp -o CMakeFiles/MyFileSystem.dir/main.cpp.s
 
+CMakeFiles/MyFileSystem.dir/shell.cpp.o: CMakeFiles/MyFileSystem.dir/flags.make
+CMakeFiles/MyFileSystem.dir/shell.cpp.o: ../shell.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/MyFileSystem.dir/shell.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyFileSystem.dir/shell.cpp.o -c /home/wulinze/CLionProjects/VFS/shell.cpp
+
+CMakeFiles/MyFileSystem.dir/shell.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MyFileSystem.dir/shell.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wulinze/CLionProjects/VFS/shell.cpp > CMakeFiles/MyFileSystem.dir/shell.cpp.i
+
+CMakeFiles/MyFileSystem.dir/shell.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MyFileSystem.dir/shell.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wulinze/CLionProjects/VFS/shell.cpp -o CMakeFiles/MyFileSystem.dir/shell.cpp.s
+
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o: CMakeFiles/MyFileSystem.dir/flags.make
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o: ../FileSystem.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o -c /home/wulinze/CLionProjects/VFS/FileSystem.cpp
 
 CMakeFiles/MyFileSystem.dir/FileSystem.cpp.i: cmake_force
@@ -85,7 +98,7 @@ CMakeFiles/MyFileSystem.dir/FileSystem.cpp.s: cmake_force
 
 CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o: CMakeFiles/MyFileSystem.dir/flags.make
 CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o: ../BlockManager.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o -c /home/wulinze/CLionProjects/VFS/BlockManager.cpp
 
 CMakeFiles/MyFileSystem.dir/BlockManager.cpp.i: cmake_force
@@ -98,7 +111,7 @@ CMakeFiles/MyFileSystem.dir/BlockManager.cpp.s: cmake_force
 
 CMakeFiles/MyFileSystem.dir/FileManager.cpp.o: CMakeFiles/MyFileSystem.dir/flags.make
 CMakeFiles/MyFileSystem.dir/FileManager.cpp.o: ../FileManager.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MyFileSystem.dir/FileManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/MyFileSystem.dir/FileManager.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyFileSystem.dir/FileManager.cpp.o -c /home/wulinze/CLionProjects/VFS/FileManager.cpp
 
 CMakeFiles/MyFileSystem.dir/FileManager.cpp.i: cmake_force
@@ -112,6 +125,7 @@ CMakeFiles/MyFileSystem.dir/FileManager.cpp.s: cmake_force
 # Object files for target MyFileSystem
 MyFileSystem_OBJECTS = \
 "CMakeFiles/MyFileSystem.dir/main.cpp.o" \
+"CMakeFiles/MyFileSystem.dir/shell.cpp.o" \
 "CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o" \
 "CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o" \
 "CMakeFiles/MyFileSystem.dir/FileManager.cpp.o"
@@ -120,12 +134,13 @@ MyFileSystem_OBJECTS = \
 MyFileSystem_EXTERNAL_OBJECTS =
 
 MyFileSystem: CMakeFiles/MyFileSystem.dir/main.cpp.o
+MyFileSystem: CMakeFiles/MyFileSystem.dir/shell.cpp.o
 MyFileSystem: CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o
 MyFileSystem: CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o
 MyFileSystem: CMakeFiles/MyFileSystem.dir/FileManager.cpp.o
 MyFileSystem: CMakeFiles/MyFileSystem.dir/build.make
 MyFileSystem: CMakeFiles/MyFileSystem.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable MyFileSystem"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wulinze/CLionProjects/VFS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable MyFileSystem"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MyFileSystem.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

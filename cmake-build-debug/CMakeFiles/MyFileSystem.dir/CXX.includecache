@@ -56,6 +56,16 @@ cstring
 time.h
 -
 
+/home/wulinze/CLionProjects/VFS/FileSystem.cpp
+FileSystem.h
+/home/wulinze/CLionProjects/VFS/FileSystem.h
+
+/home/wulinze/CLionProjects/VFS/FileSystem.h
+string
+-
+FileManager.h
+/home/wulinze/CLionProjects/VFS/FileManager.h
+
 /home/wulinze/CLionProjects/VFS/main.cpp
 iostream
 -

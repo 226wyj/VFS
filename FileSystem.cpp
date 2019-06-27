@@ -3,3 +3,10 @@
 //
 
 #include "FileSystem.h"
+
+
+
+
+void FileSystem::showUsers() {
+    this->fm->show_usr();
+}
