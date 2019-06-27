@@ -218,35 +218,14 @@ void FileManager::del_file(const std::string& filename) {
         }
         // 删除目录文件
         else if(iNode->cur_node.di_type == Type::dir){
-            
-        }
-
-
-
-        // 依次删除文件包含的所有数据块
-        deleteLink(fid);
-        inode* iNode = find_dir(filename);  // 在目录表中获取对应的内存i节点
-        // 删除目录中的项
-        // 如果该文件是目录文件，则递归删除
-        if(iNode->cur_node.di_type == Type::dir){
-            auto c_dir = catalog.find(filename);
-            if(c_dir == catalog.end()){
-                cout << "该目录不存在" << endl;
-                exit(0);
-            }
-            del_file(c_dir->first);
-        }
-        // 数据文件，则删除单个文件即可
-        else{
-            
-            return;
+            deleteDir(filename);
         }
     }
 }
 
 // 写文件
 void FileManager::write_file(const std::string& filname, const std::string& val) {
-
+    
 }
 
 // 读取文件
@@ -632,12 +611,12 @@ void FileManager::deleteData(const string& filename){
         if(i->filename == filename){
             // 删除目录中数据
             catalog[dir].erase(it);
-            // 更新当前目录
-            updateDir(dir);
             // 删除链接表项
             deleteLink(getFid(filename));
             // 删除fid表项
             deleteId(filename);
+            // 更新当前目录
+            updateDir(dir);
             return;
         }
     }
@@ -654,8 +633,15 @@ void FileManager::deleteDir(const std::string& filename){
     }
     // 遍历目录中的内容并依次删除
     for(auto v : it->second){
-        deleteLink(getFid(v.filename));
-        deleteId(v.filename);
+        // 多级目录，则递归调用该函数
+        if(v.iNode->cur_node.di_type == Type::dir){
+            deleteDir(v.filename);
+        }
+        // 普通数据项，正常删除
+        else{
+            deleteLink(getFid(v.filename));
+            deleteId(v.filename);
+        }
     }
     // 删除目录项
     catalog.erase(it);
