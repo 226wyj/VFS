@@ -60,7 +60,7 @@ int FileManager::create_usr(const std::string &uname, const std::string &pwd, Mo
         new_usr->dir_pos = bm->AllocateIndexBlock();
         int file_pos = bm->AllocateDataBlock();
 
-        auto* new_dinode = new dinode(new_usr->uid,file_pos);
+        auto* new_dinode = new dinode(new_usr->uid, file_pos);
 
         void* buf = malloc(INODE_SIZE);
         void* user_buf = malloc(USER_SIZE);
@@ -107,13 +107,11 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         cout << "您的权限不够" << endl;
         exit(0);
     }
-    auto it_uopen = user_open_table.find(cur_usr->uid);
     for(int i = 0; i < user_open_table.size(); i++){
-        
-    }
-    if(it_uopen != user_open_table.end()){
-        cout << "该文件已经打开，不能重复打开" << endl;
-        exit(0);
+        if(user_open_table[i].filename == filename){
+            cout << "您已经打开该文件" <<endl;
+            exit(0);
+        }
     }
     usropen uOpen = {cur_usr->uid, filename, mode};
 
@@ -144,7 +142,13 @@ void FileManager::close_file(inode *file) {
 
 // 创建文件
 inode *FileManager::create_file(const std::string& filename, dinode *info) {
-    // 检测当前目录是否已经存在同名文件
+
+
+
+    if(this->cur_catalogue->find(filename)!=cur_catalogue->end()){
+        return nullptr;
+    }
+
 
     // 分配数据块
     int data_pos = bm->AllocateDataBlock();
@@ -154,11 +158,11 @@ inode *FileManager::create_file(const std::string& filename, dinode *info) {
     int di_pos = bm->AllocateIndexBlock();              //分配磁盘i节点块,获得i节点编号
     dInode.di_number++;                                 // 关联数+1
     dInode.di_mode = info->di_mode;                     // 权限由参数给出
-    dInode.create_time = time(0);                       // 创建时间
+    dInode.create_time = time(nullptr);
 
     // 将更新后的信息写回磁盘
-    dinode* temp_dinode = (dinode*)malloc(INODE_SIZE);
-    memcpy(temp_dinode, &dInode, INODE_SIZE);
+    auto* temp_dinode = (dinode*)malloc(INODE_SIZE);
+    memcpy(temp_dinode, &dInode, sizeof(dinode));
     bm->WriteIndexBlock(di_pos, (dinode*)temp_dinode);
     free(temp_dinode);
 
@@ -240,13 +244,13 @@ void FileManager::table_back() {
 
 }
 
-inode* FileManager::find_dir(std::string dirname) {
+inode* FileManager::find_dir(const std::string& dirname) {
     auto it = catalog.begin();
     while(it != catalog.end())
     {
-        for(int i = 0; i < it->second.size(); i++){
-            if(it->second[i].filename == dirname){
-                return it->second[i].iNode;
+        for(auto & i : it->second){
+            if(i.filename == dirname){
+                return i.iNode;
             }
         }
         it++;
@@ -255,7 +259,7 @@ inode* FileManager::find_dir(std::string dirname) {
 }
 
 // 有问题，如果是根目录，则应该特殊处理。待加入
-inode* FileManager::find_last_dir(std::string dirname) {
+inode* FileManager::find_last_dir(const std::string& dirname) {
     string last_name;
     auto it = catalog.begin();
     while(it != catalog.end()){
@@ -272,7 +276,7 @@ inode* FileManager::find_last_dir(std::string dirname) {
     find_dir(last_name);
 }
 
-int FileManager::checkMode(std::string filename, Mod mode) {
+int FileManager::checkMode(const std::string& filename, Mod mode) {
     auto iter_uid = limits.find(cur_usr->uid);
     auto iter_fid = file_id.find(filename);
     if(iter_fid == file_id.end()){
@@ -280,14 +284,14 @@ int FileManager::checkMode(std::string filename, Mod mode) {
         exit(0);
     }
     uint fid = file_id[filename];   //  将文件名映射为文件id
-    Mod um;
+    Mod um = Mod::___;
     if(iter_uid == limits.end()){
         um = Mod::r__;
     }
     else{
-        for(int i = 0; i < iter_uid->second.size(); i++){
-            if(iter_uid->second[i].file_id == fid){
-                um = iter_uid->second[i].usr_mode;
+        for(auto & i : iter_uid->second){
+            if(i.file_id == fid){
+                um = i.usr_mode;
                 break;
             }
         }
@@ -346,7 +350,7 @@ int FileManager::checkMode(std::string filename, Mod mode) {
 }
 
 // 通过filename获取fid
-uint FileManager::getFid(std::string filename) {
+uint FileManager::getFid(const std::string& filename) {
     auto iter = file_id.find(filename);
     if(iter == file_id.end()){
         cout << "该文件不在file_id表中" << endl;
