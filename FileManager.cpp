@@ -91,6 +91,7 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
     Mod fileMode;
     inode* finode;
     int flag = 0;
+    // 在当前目录中搜索该文件
     for(int i = 0; i < catalog[filename].size(); i++){
         if((catalog[filename])[i].filename == filename){
             flag = 1;
@@ -98,17 +99,20 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
             break;
         }
     }
+    // 未在当前目录找到
     if(!flag){
         cout << "想打开的文件不在当前目录" << endl;
         exit(0);
     }
+    // 检查对应权限
     flag = checkMode(filename, mode);
     if(!flag){
         cout << "您的权限不够" << endl;
         exit(0);
     }
-    for(auto & i : user_open_table){
-        if(i.filename == filename){
+    // 判断是否已经打开
+    for(int i = 0; i < user_open_table.size(); i++){
+        if(user_open_table[i].filename == filename){
             cout << "您已经打开该文件" <<endl;
             exit(0);
         }
@@ -131,8 +135,6 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         sys_open_table.insert(make_pair(fid, sOpen));
     }
     user_sys.insert(make_pair(cur_usr->uid, fid));
-
-    // 通过系统打开表找i节点
 
 }
 
