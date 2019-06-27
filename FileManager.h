@@ -116,7 +116,6 @@ struct usropen{
     uint u_uid;			            //用户ID
     std::string filename;           //文件名
     Mod u_mode;                     //打开方式
-//    uint sys_pos;                   //对应的系统打开文件表入口
 };
 
 //用户
@@ -198,14 +197,14 @@ public:
 
 
 
-    inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
-    void close_file(inode* file);                                                            //关闭文件
+    void close_file(std::string filename);                                                            //关闭文件
     void del_file(const std::string& filename);                                              //删除文件
     void write_file(const std::string& filname,const std::string& val);                      //写文件
     std::string read_file(const std::string& filename);                                      //读文件
 
     ///未验证，但基本完成
     inode* create_file(const std::string& filename,dinode* info= nullptr);                   //创建文件
+    inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
 
     ///已完成
     bool verify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息

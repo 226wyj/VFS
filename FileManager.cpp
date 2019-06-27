@@ -140,8 +140,25 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
 }
 
 // 关闭文件
-void FileManager::close_file(inode *file) {
-
+void FileManager::close_file(std::string filename) {
+    // 查找用户打开表，判断文件是否打开
+    int flag = 0;
+    auto i = user_open_table.begin();
+    while(i != user_open_table.end()){
+        if(i->u_uid == cur_usr->uid && i->filename == filename){
+            flag = 1;
+            break;
+        }
+        i++;
+    }
+    if(!flag){
+        cout << "错误！当前文件并没有被打开" << endl;
+        exit(0);
+    }
+    // 删除用户打开表中的对应表项
+    user_open_table.erase(i);
+    //　删除usr-sys表中对应的链接
+    user_sys.erase(cur_usr->uid);
 }
 
 // 创建文件
