@@ -179,10 +179,7 @@ private:
     void table_back();                                      //系统表写回
 
     ///基本完成，需要验证
-    inode* find_dir(const std::string& dirname);            //根据文件名字在目录表中找到其对应i节点
-    inode* find_last_dir(const std::string& dirname);       //在目录表中const 找到上一层&目录的i节点
     int checkMode(const std::string& filename, Mod mode);   //检测用户权限
-    uint getFid(const std::string& filename);               //获得文件名对应的id
     bool is_exist_usr(const std::string& usrname);           //验证用户名是否重复
 public:
 
@@ -199,7 +196,6 @@ public:
 
 
 
-    void close_file(std::string filename);                                                            //关闭文件
     void del_file(const std::string& filename);                                              //删除文件
     void write_file(const std::string& filname,const std::string& val);                      //写文件
     std::string read_file(const std::string& filename);                                      //读文件
@@ -207,6 +203,13 @@ public:
     ///未验证，但基本完成
     inode* create_file(const std::string& filename,dinode* info= nullptr);                   //创建文件
     inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
+    void close_file(std::string filename);                                                   //关闭文件
+    
+    ///接口
+    uint getFid(const std::string& filename);                                                //获得文件名对应的id
+    inode* find_last_dir(const std::string& dirname);                                        //根据文件名字在目录表中找到其上一层目录的i节点
+    inode* find_dir(const std::string& dirname);                                             //根据文件名字在目录表中找到其对应i节点
+    std::vector<int>* get_data_blocks(std::string filename);                                 //根据文件名获取其对应的数据块
 
     ///已完成
     bool verify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息

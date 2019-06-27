@@ -164,11 +164,10 @@ void FileManager::close_file(std::string filename) {
 // 创建文件
 inode *FileManager::create_file(const std::string& filename, dinode *info) {
 
-
+    // 该文件已经存在
     if(this->cur_catalog->find(filename)!=cur_catalog->end()){
         return nullptr;
     }
-
 
     // 分配数据块
     int data_pos = bm->AllocateDataBlock();
@@ -384,6 +383,7 @@ void FileManager::format() {
     bm->Format(true);
 }
 
+// 判断用户是否存在
 bool FileManager::is_exist_usr(const string& usrname) {
     if(usrname.length() > 10)return false;
     else{
@@ -407,4 +407,15 @@ bool FileManager::is_exist_usr(const string& usrname) {
         return false;
 
     }
+}
+
+// 通过filename获取文件包含的所有数据块
+std::vector<int>* FileManager::get_data_blocks(std::string filename) {
+    uint fid = getFid(filename);
+    auto it_file = file_link.find(fid);
+    if(it_file == file_link.end()){
+        cout << "该文件不在file_link表中" << endl;
+        exit(0);
+    }
+    return &(it_file->second);
 }
