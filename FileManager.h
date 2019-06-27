@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <string>
 #include <cstring>
+#include <ctime>
 
 
 
@@ -20,7 +21,7 @@
 #define HASHSIZE 128        // 内存i节点hash表长度
 #define NADDR 10            // 每个i节点最多指向10块
 
-
+static int ID = 0;        // i节点初始id
 
 struct dinode;
 struct inode;
@@ -43,7 +44,7 @@ struct dinode{
     Type di_type;                   //类型
     uint di_uid;			        //用户id
     uint di_size;			        //文件大小
-    Blockinfo di_first            //文件对应首块
+    Blockinfo di_first              //文件对应首块
 
     time_t create_time;             //创建时间
     time_t rencent_open;            //最近打开时间
@@ -61,6 +62,17 @@ struct dinode{
         rencent_open = time(nullptr);
     }
 
+    void operator = (const dinode& d)
+    {
+        di_number = d.di_number;
+        di_mode = d.di_mode;
+        di_type = d.di_type;
+        di_uid = d.di_uid;
+        di_size = d.di_size;
+        di_first = d.di_first;
+        create_time = d.create_time;
+        rencent_open = d.rencent_open;
+    }
 };
 
 //内存i节点
@@ -68,7 +80,7 @@ struct inode{
 
     uint i_id;			            //内存i节点标识
     uint pos;                       //磁盘i节点块号
-    uint offset;                    //磁盘i节点在块内的偏移量
+//    uint offset;                    //磁盘i节点在块内的偏移量
 
     dinode cur_node;
 
@@ -77,7 +89,7 @@ struct inode{
 //系统打开表表项
 struct sysopen{
     uint s_count;                   //访问计数
-    int fileid;	                    //文件描述符
+    uint fileid;	                    //文件描述符
     inode *s_inode;	                //指向对应内存i节点
 };
 
@@ -86,7 +98,7 @@ struct usropen{
     uint u_uid;			            //用户ID
     std::string filename;           //文件名
     Mod u_mode;                     //打开方式
-    uint sys_pos;                   //对应的系统打开文件表入口
+//    uint sys_pos;                   //对应的系统打开文件表入口
 };
 
 //用户
@@ -120,6 +132,17 @@ struct Blockinfo{
     BlockType type;
 };
 
+// 目录表结构
+struct cur_dir{
+    std::string filename;
+    inode* iNode;
+};
+
+// 用户权限表结构
+struct usr_limit{
+    uint file_id;
+    Mod usr_mode;
+};
 
 class FileManager {
 private:
@@ -128,7 +151,11 @@ private:
     BlockManager* bm;                                       //磁盘管理器
     FileTree *catalogue_tree;                               //目录树
 
-
+    std::string dir;                                                //用户所在当前目录名字
+    std::unordered_map<std::string, std::vector<cur_dir> > catalog; //总目录表
+    std::unordered_map<int, std::vector<int> > file_link;           //显式链接表
+    std::unordered_map<uint, std::vector<usr_limit> > limits;       //用户权限表
+    std::unordered_map<std::string, uint> file_id;                  //文件名-文件id映射表
 
     std::unordered_map<int,int> user_sys;                   //系统打开表和用户打开表之间的映射关系
     std::unordered_map<int,sysopen> sys_open_table;         //系统打开表
@@ -141,6 +168,11 @@ private:
     void table_init();                                      //系统表初始化
     void table_back();                                      //系统表写回
 
+    ///基本完成，需要验证
+    inode* find_dir(std::string dirname);                   //根据文件名字在目录表中找到其对应i节点
+    inode* find_last_dir(std::string dirname);              //在目录表中找到上一层目录的i节点
+    int checkMode(std::string filename, Mod mode);          //检测用户权限
+    uint getFid(std::string filename);                      //获得文件名对应的id
 public:
 
 
@@ -155,13 +187,16 @@ public:
 
 
 
-    inode* open_file(const std::string& filename);                                           //打开文件
+    inode* open_file(const std::string& filename, Mod mode);                                           //打开文件
     void close_file(inode* file);                                                            //关闭文件
-    inode* create_file(const std::string& val="",const std::string& filename,dinode* info);  //创建文件
     void del_file(const std::string& filename);                                              //删除文件
     void write_file(const std::string& filname,const std::string& val);                      //写文件
     std::string read_file(const std::string& filename);                                      //读文件
 
+    ///未验证，但基本完成
+    inode* create_file(const std::string& filename,dinode* info);           //创建文件
+
+    ///已完成
     bool vertify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
     int create_usr(const std::string& uname,const std::string& pwd,Mod right);               //创建用户
 
