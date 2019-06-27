@@ -1,11 +1,13 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/MyFileSystem.dir/main.cpp.o"
-  "CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o"
-  "CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o"
-  "CMakeFiles/MyFileSystem.dir/FileManager.cpp.o"
-  "CMakeFiles/MyFileSystem.dir/FileTree.cpp.o"
+  "CMakeFiles/MyFileSystem.dir/main.cpp.obj"
+  "CMakeFiles/MyFileSystem.dir/FileSystem.cpp.obj"
+  "CMakeFiles/MyFileSystem.dir/BlockManager.cpp.obj"
+  "CMakeFiles/MyFileSystem.dir/FileManager.cpp.obj"
+  "CMakeFiles/MyFileSystem.dir/FileTree.cpp.obj"
   "MyFileSystem.pdb"
-  "MyFileSystem"
+  "MyFileSystem.exe"
+  "MyFileSystem.exe.manifest"
+  "libMyFileSystem.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.
