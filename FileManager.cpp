@@ -614,15 +614,53 @@ void FileManager::deleteLink(int fid){
     }
 }
 
+// 删除file-id中的某一项
+void FileManager::deleteId(const std::string& filename){
+    for(auto i = file_id.begin(); i != file_id.end(); i++){
+        if(i->first == filename){
+            file_id.erase(i);
+            return;
+        }
+    }
+    cout << "file-id表中没有该文件项" << endl;
+    exit(0);
+}
+
 // 在当前目录中删除对应数据项
 void FileManager::deleteData(const string& filename){
     for(auto i = catalog[dir].begin(); i != catalog[dir].end(); i++){
         if(i->filename == filename){
+            // 删除目录中数据
             catalog[dir].erase(it);
-            updateDir(filename);
+            // 更新当前目录
+            updateDir(dir);
+            // 删除链接表项
+            deleteLink(getFid(filename));
+            // 删除fid表项
+            deleteId(filename);
             return;
         }
     }
     cout << "当前目录中不存在该文件" << endl;
     exit(0);
+}
+
+// 删除整个目录以及其中包括的文件
+void FileManager::deleteDir(const std::string& filename){
+    auto it = catalog.find(filename);
+    if(it == catalog.end()){
+        cout << "该目录不存在" << endl;
+        exit(0);
+    }
+    // 遍历目录中的内容并依次删除
+    for(auto v : it->second){
+        deleteLink(getFid(v.filename));
+        deleteId(v.filename);
+    }
+    // 删除目录项
+    catalog.erase(it);
+    deleteLink(getFid(filename));
+    deleteId(filename);
+    // 更新当前目录
+    updateDir(dir);
 }

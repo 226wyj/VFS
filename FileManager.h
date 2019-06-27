@@ -251,7 +251,8 @@ private:
     int inCurDir(const std::string& filename);                     // 判断文件是否在当前目录下
     int isOpen(const std::string& filename);                       // 判断当前用户是否已经打开某文件
     void deleteData(const std::string& filename);           // 在当前目录中删除对应数据项
-
+    void deleteDir(const std::string& filename);            // 删除整个目录以及其中的文件
+    void deleteId(const std::string& filename);             // 删除file-id表中的某一项
 public:
 
 
