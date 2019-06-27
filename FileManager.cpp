@@ -145,7 +145,7 @@ inode *FileManager::create_file(const std::string& filename, dinode *info) {
 
 
 
-    if(this->cur_catalogue->find(filename)!=cur_catalogue->end()){
+    if(this->cur_catalog->find(filename)!=cur_catalog->end()){
         return nullptr;
     }
 
