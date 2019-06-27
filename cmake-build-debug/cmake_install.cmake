@@ -1,4 +1,4 @@
-# Install script for directory: /home/wyj/Desktop/VFS
+# Install script for directory: /home/wulinze/CLionProjects/VFS
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/wyj/Desktop/VFS/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/wulinze/CLionProjects/VFS/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

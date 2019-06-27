@@ -50,7 +50,7 @@ bool FileManager::verify_usr(const std::string& uname, const std::string& pwd) {
 // 创建用户
 int FileManager::create_usr(const std::string &uname, const std::string &pwd, Mod right) {
 
-    if(uname.length() > 10 || pwd.length()>10)
+    if(uname.length() > 10 || pwd.length()>10 || is_exist_usr(uname))
         return -1;
 
     usr* new_usr = new usr(right,uname,pwd);
@@ -107,8 +107,8 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         cout << "您的权限不够" << endl;
         exit(0);
     }
-    for(int i = 0; i < user_open_table.size(); i++){
-        if(user_open_table[i].filename == filename){
+    for(auto & i : user_open_table){
+        if(i.filename == filename){
             cout << "您已经打开该文件" <<endl;
             exit(0);
         }
@@ -357,4 +357,33 @@ uint FileManager::getFid(const std::string& filename) {
         exit(0);
     }
     return file_id[filename];
+}
+
+void FileManager::format() {
+    bm->Format(true);
+}
+
+bool FileManager::is_exist_usr(const string& usrname) {
+    if(usrname.length() > 10)return false;
+    else{
+
+        for(int i=0;i<8;i++){
+            if(SuperBlcok.user_info[i] != -1){
+                usr* temp_usr = (usr*)bm->ReadUser(i);
+
+                if(temp_usr!= nullptr){
+                    if(strcmp(temp_usr[0].usr_name,&usrname[0])==0){
+                        return true;
+                    }
+                    free(temp_usr);
+                } else{
+                    return false;
+                }
+
+            }
+        }
+
+        return false;
+
+    }
 }
