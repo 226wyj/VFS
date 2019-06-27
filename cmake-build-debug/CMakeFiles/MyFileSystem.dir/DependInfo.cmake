@@ -4,11 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/wulinze/CLionProjects/MyFileSystem/BlockManager.cpp" "/home/wulinze/CLionProjects/MyFileSystem/cmake-build-debug/CMakeFiles/MyFileSystem.dir/BlockManager.cpp.o"
-  "/home/wulinze/CLionProjects/MyFileSystem/FileManager.cpp" "/home/wulinze/CLionProjects/MyFileSystem/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileManager.cpp.o"
-  "/home/wulinze/CLionProjects/MyFileSystem/FileSystem.cpp" "/home/wulinze/CLionProjects/MyFileSystem/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileSystem.cpp.o"
-  "/home/wulinze/CLionProjects/MyFileSystem/FileTree.cpp" "/home/wulinze/CLionProjects/MyFileSystem/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileTree.cpp.o"
-  "/home/wulinze/CLionProjects/MyFileSystem/main.cpp" "/home/wulinze/CLionProjects/MyFileSystem/cmake-build-debug/CMakeFiles/MyFileSystem.dir/main.cpp.o"
+  "C:/Users/30803/Desktop/VFS/BlockManager.cpp" "C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/BlockManager.cpp.obj"
+  "C:/Users/30803/Desktop/VFS/FileManager.cpp" "C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileManager.cpp.obj"
+  "C:/Users/30803/Desktop/VFS/FileSystem.cpp" "C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileSystem.cpp.obj"
+  "C:/Users/30803/Desktop/VFS/FileTree.cpp" "C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/FileTree.cpp.obj"
+  "C:/Users/30803/Desktop/VFS/main.cpp" "C:/Users/30803/Desktop/VFS/cmake-build-debug/CMakeFiles/MyFileSystem.dir/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
