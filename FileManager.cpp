@@ -8,6 +8,7 @@
 
 
 
+
 #define SuperBlcok this->bm->getSuperBlock()
 
 using namespace std;
@@ -134,17 +135,17 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
         sysopen sOpen = {1, fid, find_dir(filename)};
         sys_open_table.insert(make_pair(fid, sOpen));
     }
+    // 更新用户-系统打开表
     user_sys.insert(make_pair(cur_usr->uid, fid));
-
 }
 
+// 关闭文件
 void FileManager::close_file(inode *file) {
 
 }
 
 // 创建文件
 inode *FileManager::create_file(const std::string& filename, dinode *info) {
-
 
 
     if(this->cur_catalog->find(filename)!=cur_catalog->end()){
@@ -278,6 +279,7 @@ inode* FileManager::find_last_dir(const std::string& dirname) {
     find_dir(last_name);
 }
 
+// 检测权限
 int FileManager::checkMode(const std::string& filename, Mod mode) {
     auto iter_uid = limits.find(cur_usr->uid);
     auto iter_fid = file_id.find(filename);
