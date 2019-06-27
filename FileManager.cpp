@@ -90,37 +90,31 @@ int FileManager::create_usr(const std::string &uname, const std::string &pwd, Mo
 // 打开文件
 inode *FileManager::open_file(const std::string& filename, Mod mode) {
     Mod fileMode;
-    inode* finode;
-    int flag = 0;
-    // 在当前目录中搜索该文件
-    for(int i = 0; i < catalog[filename].size(); i++){
-        if((catalog[filename])[i].filename == filename){
-            flag = 1;
-            finode = (catalog[filename])[i].iNode;
-            break;
-        }
-    }
-    // 未在当前目录找到
-    if(!flag){
+    inode* iNode;
+
+    // 更新当前目录
+    updateDir(filename);
+
+    // 未在当前目录找到该文件
+    if(!inCurDir(filename)){
         cout << "想打开的文件不在当前目录" << endl;
         exit(0);
     }
     // 检查对应权限
-    flag = checkMode(filename, mode);
-    if(!flag){
+    if(!checkMode(filename, mode)){
         cout << "您的权限不够" << endl;
         exit(0);
     }
     // 判断是否已经打开
-    for(int i = 0; i < user_open_table.size(); i++){
-        if(user_open_table[i].filename == filename){
-            cout << "您已经打开该文件" <<endl;
-            exit(0);
-        }
+    if(isOpen(filename)){
+        cout << "您已经打开此文件"　<< endl;
+        exit(0);
     }
-    usropen uOpen = {cur_usr->uid, filename, mode};
+
+    iNode = find_dir(filename);
 
     // 更新用户打开表
+    usropen uOpen = {cur_usr->uid, filename, mode};
     user_open_table.push_back(uOpen);
     uint fid = getFid(filename);
     auto it_fopen = sys_open_table.find(fid);
@@ -132,11 +126,13 @@ inode *FileManager::open_file(const std::string& filename, Mod mode) {
 
     // 不存在则创建新的系统打开表项
     else{
-        sysopen sOpen = {1, fid, find_dir(filename)};
+        sysopen sOpen = {1, fid, iNode};
         sys_open_table.insert(make_pair(fid, sOpen));
     }
     // 更新用户-系统打开表
     user_sys.insert(make_pair(cur_usr->uid, fid));
+    
+    return iNode;
 }
 
 // 关闭文件
@@ -161,12 +157,14 @@ void FileManager::close_file(std::string filename) {
     user_sys.erase(cur_usr->uid);
 }
 
-// 创建文件
-inode *FileManager::create_file(const std::string& filename, dinode *info) {
+// 创建文件，默认创建目录文件.
+inode *FileManager::create_file(const std::string& filename, dinode *info = nullptr) {
 
     // 该文件已经存在
-    if(this->cur_catalog->find(filename)!=cur_catalog->end()){
-        return nullptr;
+    if(cur_catalog->find(filename) != cur_catalog->end()){
+        cout << "该文件已经存在" << endl;
+        exit(0);
+        //return nullptr;
     }
 
     // 分配数据块
@@ -177,43 +175,97 @@ inode *FileManager::create_file(const std::string& filename, dinode *info) {
     int di_pos = bm->AllocateIndexBlock();              //分配磁盘i节点块,获得i节点编号
     dInode.di_number++;                                 // 关联数+1
     dInode.di_mode = info->di_mode;                     // 权限由参数给出
+    dInode.di_type = info->di_type;                     // 类型由参数给出(数据 / 目录)
     dInode.create_time = time(nullptr);
 
-    // 将更新后的信息写回磁盘
+    // 将更新后的i节点信息写回磁盘
     auto* temp_dinode = (dinode*)malloc(INODE_SIZE);
     memcpy(temp_dinode, &dInode, sizeof(dinode));
     bm->WriteIndexBlock(di_pos, (dinode*)temp_dinode);
     free(temp_dinode);
 
     // 构造对应的内存i节点
-    inode iNode = createInode(di_pos, dInode);
+    inode* iNode = createInode(di_pos, dInode);
 
     // 更新文件名-文件id映射表
     file_id.insert(make_pair(filename, iNode.i_id));
 
     // 显式链接表新增表项
-    updateLink(iNode.i_id, di_pos);
+    updateLink(iNode->i_id, di_pos);
 
     // 用户权限表更新
-    updateLimits(iNode.i_id, dInode.di_mode);
+    updateLimits(iNode->i_id, dInode.di_mode);
 
-    // 目录表新增表项
+    // 更新目录
     updateCatalog(filename, &iNode);
     
     // 返回新建文件的内存i节点
-    return &iNode;
+    return iNode;
 }
 
+// 删除文件
 void FileManager::del_file(const std::string& filename) {
+    int fid = getFid(filename);
+    if(file_link.find(fid) == file_link.end()){
+        cout << "file_link表中不存在该文件" << endl;
+        exit(0);
+    }
+    else{
+        inode* iNode = find_dir(filename);
+        // 删除普通数据文件
+        if(iNode->cur_node.di_type == Type::normal){
+            deleteData(filename);
+        }
+        // 删除目录文件
+        else if(iNode->cur_node.di_type == Type::dir){
+            
+        }
 
+
+
+        // 依次删除文件包含的所有数据块
+        deleteLink(fid);
+        inode* iNode = find_dir(filename);  // 在目录表中获取对应的内存i节点
+        // 删除目录中的项
+        // 如果该文件是目录文件，则递归删除
+        if(iNode->cur_node.di_type == Type::dir){
+            auto c_dir = catalog.find(filename);
+            if(c_dir == catalog.end()){
+                cout << "该目录不存在" << endl;
+                exit(0);
+            }
+            del_file(c_dir->first);
+        }
+        // 数据文件，则删除单个文件即可
+        else{
+            
+            return;
+        }
+    }
 }
 
+// 写文件
 void FileManager::write_file(const std::string& filname, const std::string& val) {
 
 }
 
+// 读取文件
 std::string FileManager::read_file(const std::string& filename) {
-
+    int fid = getFid(filename);
+    auto it = file_link.find(fid);
+    string result = "";
+    char* temp_str = "";
+    if(it == file_link.end()){
+        cout << "file_link表中不存在该文件" << endl;
+        exit(0);
+    }
+    else{
+        for(int i = 0; i < it->second.size(); i++){
+            temp_str = bm->ReadBlock(it->second[i], i * BLOCK_SIZE, BLOCK_SIZE);
+            result += temp_str;
+        }
+    }
+    return result;
 }
 
 
@@ -228,6 +280,57 @@ void FileManager::table_back() {
 
 }
 
+
+// 判断当前用户是否打开文件
+int FileManager::isOpen(const std::string& filename){
+  for(int i = 0; i < user_open_table.size(); i++){
+      if(user_open_table[i].u_uid == cur_usr->uid && user_open_table[i].filename == filename){
+          return 1;
+      }
+  }
+  return 0;
+}
+
+// 判断文件是否在当前目录下
+int FileManager::inCurDir(const std::string& filename){
+    auto it = cur_catalog->find(filename);
+    if(it == cur_catalog->end())
+        return 0;
+    return 1;
+}
+
+//　工具函数，将目录总表中的vector目录结构拷贝到当前目录的map结构中
+void FileManager::vector_to_map(std::vector<cur_dir> v, std::unordered_map<std::string,dinode>* m){
+    for(auto i : v){
+        m->insert(make_pair(i.filename, *(i.iNode)));
+    }
+}
+
+// 更新当前目录表与当前目录名字
+void FileManager::updateDir(const std::string& filename){
+    for(auto it = catalog.begin(); it != catalog.end(); it++){
+        for(int i = 0; i < it->second.size(); i++){
+            if(it->second[i].filename == filename){
+                vector_to_map(it->second, cur_catalog);
+                dir = it->first;
+                return;
+            }
+        }
+    }
+}                          
+// 重载
+void FileManager::updateDir(inode* iNode){
+    for(auto it = catalog.begin(); it != catalog.end(); it++){
+        for(int i = 0; i < it->second.size(); i++){
+            if(it->second[i].iNode == iNode){
+                vector_to_map(it->second, cur_catalog);
+                return;
+            }
+        }
+    }
+}
+
+// 根据文件的名字在目录表中找到其对应的i节点
 inode* FileManager::find_dir(const std::string& dirname) {
     auto it = catalog.begin();
     while(it != catalog.end())
@@ -384,11 +487,11 @@ std::vector<int>* FileManager::get_data_blocks(std::string filename) {
 }
 
 // 根据磁盘i节点生成对应的内存i节点
-inode FileManager::createInode(int di_pos, dinode di){
-    inode iNode;
-    iNode.i_id = ID++;
-    iNode.pos = di_pos;
-    iNode.cur_node = di;
+inode* FileManager::createInode(int di_pos, dinode di){
+    inode* iNode;
+    iNode->i_id = ID++;
+    iNode->pos = di_pos;
+    iNode->cur_node = di;
     return iNode;
 }           
 
@@ -420,7 +523,7 @@ void FileManager::updateLimits(uint fid, Mod mod){
 
 }                                    
 
-// 目录表更新
+// 目录表更新(需要判断文件类型)
 void FileManager::updateCatalog(std::string filename, inode* iNode){
     cur_dir temp_dir = {filename, iNode};
     inode* current_dir = find_dir(dir);
@@ -436,15 +539,23 @@ void FileManager::updateCatalog(std::string filename, inode* iNode){
     cur_dir temp_cur_dir = {".", current_dir};
     cur_dir temp_las_dir = {"..", last_dir};
     vector<cur_dir> v_dir;
-    v_dir.push_back(temp_dir);
     v_dir.push_back(temp_cur_dir);
     v_dir.push_back(temp_las_dir);
-    auto iter_dir = catalog.find(dir);  // 在目录表中查找是否包含当前目录
-    if(iter_dir == catalog.end()){
-        catalog.insert(make_pair(dir, v_dir));
+
+    // 普通数据文件则在当前目录下追加
+    if(iNode->cur_node.di_type == Type::normal){
+        catalog[dir].push_back(temp_dir);
+        updateDir(filename);
     }
-    else{
-        iter_dir->second.push_back(temp_dir);
+    // 目录文件则新增目录总表项
+    else if(iNode->cur_node.di_type == Type::dir){
+        if(dir == filename){
+            cout << "该目录已经存在" << endl;
+            exit(0);
+        }
+        else{
+            catalog.insert(make_pair(filename, v_dir));
+        }
     }
 }               
 
@@ -477,18 +588,6 @@ dinode *FileManager::create_file(const std::string &filename, bool index, dinode
 
 }
 
-// 获取当前目录 
-std::unordered_map<std::string, dinode>* FileManager::getCurCatalog(){
-    auto it = catalog.find(dir);
-    if(it == catalog.end()){
-        cout << "错误！目录表中无法找到当前目录" << endl;
-        exit(0);
-    }
-    else{
-        
-    }
-}
-
 void FileManager::show_usr() {
     for(int i=0;i<8;i++){
         if(SuperBlcok.user_info[i] != -1){
@@ -500,4 +599,30 @@ void FileManager::show_usr() {
 
         }
     }
+}
+
+// 根据fid删除对应的数据块，同时在链接表中删除其表项
+void FileManager::deleteLink(int fid){
+    auto it = file_link.find(fid);
+    if(it == file_link.end()){
+        cout << "链接表中找不到对应的fid" << endl;
+        exit(0);
+    }
+    else{
+        bm->FreeDataBlocks(it->second);
+        file_link.erase(fid);
+    }
+}
+
+// 在当前目录中删除对应数据项
+void FileManager::deleteData(const string& filename){
+    for(auto i = catalog[dir].begin(); i != catalog[dir].end(); i++){
+        if(i->filename == filename){
+            catalog[dir].erase(it);
+            updateDir(filename);
+            return;
+        }
+    }
+    cout << "当前目录中不存在该文件" << endl;
+    exit(0);
 }

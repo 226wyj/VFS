@@ -142,7 +142,7 @@ struct inode{
 //系统打开表表项
 struct sysopen{
     uint s_count;                   //访问计数
-    uint fileid;	                    //文件描述符
+    uint fileid;	                //文件描述符
     inode *s_inode;	                //指向对应内存i节点
 };
 
@@ -183,7 +183,6 @@ struct usr{
             case Mod::rwx:std::cout << "rwx";break;
             default:std::cout << "wrong" << std::endl;
         }
-        return out;
         out << "directory pos:" << user.dir_pos << std::endl;
         return out;
     }
@@ -213,7 +212,7 @@ struct usr_limit{
     uint file_id;
     Mod usr_mode;
 };
-
+ 
 class FileManager {
 private:
 
@@ -240,11 +239,19 @@ private:
     ///基本完成，需要验证
     int checkMode(const std::string& filename, Mod mode);   //检测用户权限
     bool is_exist_usr(const std::string& usrname);          //验证用户名是否重复
-    inode createInode(int di_pos, dinode di);               // 创建内存i节点
+    inode* createInode(int di_pos, dinode di);               // 创建内存i节点
     void updateLink(int fid, int pos);                      // 更新显式链接表
     void updateLimits(uint fid, Mod mod);                   // 更新用户权限表        
     void updateCatalog(std::string filename, inode* iNode); // 更新目录表
-    std::unordered_map<std::string, dinode>* getCurCatalog();// 获取当前目录               
+    void deleteLink(int fid);                               // 删除显式链接表中某一项的文件
+
+    void vector_to_map(std::vector<cur_dir> v, std::unordered_map<std::string,dinode>* m); 
+    void updateDir(const std::string& filename);                   // 更新当前目录表 filename-文件名
+    void updateDir(inode* iNode);                           // iNode - 文件对应的i节点指针
+    int inCurDir(const std::string& filename);                     // 判断文件是否在当前目录下
+    int isOpen(const std::string& filename);                       // 判断当前用户是否已经打开某文件
+    void deleteData(const std::string& filename);           // 在当前目录中删除对应数据项
+
 public:
 
 
@@ -262,13 +269,14 @@ public:
 
     void del_file(const std::string& filename);                                              //删除文件
     void write_file(const std::string& filname,const std::string& val);                      //写文件
-    std::string read_file(const std::string& filename);                                      //读文件
 
     ///未验证，但基本完成
     inode* create_file(const std::string& filename,dinode* info= nullptr);                   //创建文件
     dinode* create_file(const std::string& filename,bool index,dinode* info= nullptr,bool dir=false);
     inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
     void close_file(std::string filename);                                                   //关闭文件
+    std::string read_file(const std::string& filename);                                      //读文件
+
     
     ///接口
     uint getFid(const std::string& filename);                                                //获得文件名对应的id

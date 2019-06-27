@@ -8,28 +8,28 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/wulinze/CLionProjects/VFS/cmake-build-debug"/>
+				<Option working_dir="/home/wyj/Desktop/VFS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/wulinze/CLionProjects/VFS/cmake-build-debug"/>
+				<Option working_dir="/home/wyj/Desktop/VFS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="MyFileSystem">
-				<Option output="/home/wulinze/CLionProjects/VFS/cmake-build-debug/MyFileSystem" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/wulinze/CLionProjects/VFS/cmake-build-debug"/>
+				<Option output="/home/wyj/Desktop/VFS/cmake-build-debug/MyFileSystem" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/wyj/Desktop/VFS/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -44,15 +44,15 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 MyFileSystem"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 MyFileSystem"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="MyFileSystem/fast">
-				<Option output="/home/wulinze/CLionProjects/VFS/cmake-build-debug/MyFileSystem" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/wulinze/CLionProjects/VFS/cmake-build-debug"/>
+				<Option output="/home/wyj/Desktop/VFS/cmake-build-debug/MyFileSystem" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/wyj/Desktop/VFS/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -67,51 +67,51 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 MyFileSystem/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 MyFileSystem/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/wulinze/CLionProjects/VFS/cmake-build-debug"/>
+				<Option working_dir="/home/wyj/Desktop/VFS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/wulinze/CLionProjects/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/wyj/Desktop/VFS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/BlockManager.cpp">
+		<Unit filename="/home/wyj/Desktop/VFS/BlockManager.cpp">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/BlockManager.h">
+		<Unit filename="/home/wyj/Desktop/VFS/BlockManager.h">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/FileManager.cpp">
+		<Unit filename="/home/wyj/Desktop/VFS/FileManager.cpp">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/FileManager.h">
+		<Unit filename="/home/wyj/Desktop/VFS/FileManager.h">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/FileSystem.cpp">
+		<Unit filename="/home/wyj/Desktop/VFS/FileSystem.cpp">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/FileSystem.h">
+		<Unit filename="/home/wyj/Desktop/VFS/FileSystem.h">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/main.cpp">
+		<Unit filename="/home/wyj/Desktop/VFS/main.cpp">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/shell.cpp">
+		<Unit filename="/home/wyj/Desktop/VFS/shell.cpp">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/shell.h">
+		<Unit filename="/home/wyj/Desktop/VFS/shell.h">
 			<Option target="MyFileSystem"/>
 		</Unit>
-		<Unit filename="/home/wulinze/CLionProjects/VFS/CMakeLists.txt">
+		<Unit filename="/home/wyj/Desktop/VFS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>
