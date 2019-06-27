@@ -1,0 +1,28 @@
+    bool cp(string file1,string file2);        //复制指令
+    {
+    复制文件file1到file2，如果复制成功，返回TRUE，否则返回FALSE
+    }
+    void ls();                               //查看当前目录文件
+    {
+    显示当前目录文件
+    }
+    bool mkdir(string dir_name);             //创建目录
+    {
+    创建目录，如果当前已经存在重名目录，返回目录名字和位置，显示TRUE,如果创建失败，输出0，如果不存在同名目录，创建目录并返回1
+    }
+    bool cd(string name);                               //移动当前目录
+    {
+    移动当前目录到name，移动成功返回1，失败返回0
+    }
+    bool rm(string file_name);               //删除文件
+    {
+    删除文件，先进行查找，如果找到并删除，成功返回1，找不到或者删除失败返回0
+    }
+    bool touch(string file_name);            //创建文件
+    {
+     创建文件，如果当前已经存在重名文件，返回目文件名字和位置，显示TRUE,如果创建失败，输出0，如果不存在同名文件，创建文件并返回1
+    }
+    bool open(string file_name,string mood);             //打开文件
+    {
+    打开文件，以mood模式打开，如果模式不允许或者打开失败，返回0，成功打开返回1
+    }
