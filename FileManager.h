@@ -1,9 +1,9 @@
 //
-// Created by wulinze on 19-6-21.
+// Created by wulinze on 19-6-27.
 //
 
-#ifndef FILESYSTEM_FILEMANAGER_H
-#define FILESYSTEM_FILEMANAGER_H
+#ifndef MYFILESYSTEM_FILEMANAGER_H
+#define MYFILESYSTEM_FILEMANAGER_H
 
 #include "BlockManager.h"
 #include <vector>
@@ -20,7 +20,6 @@
 #define HASHSIZE 128        // 内存i节点hash表长度
 #define NADDR 10            // 每个i节点最多指向10块
 
-static int ID = 0;        // i节点初始id
 
 struct dinode;
 struct inode;
@@ -46,83 +45,369 @@ struct Blockinfo{
         this->index = data;
         this->type = type;
     }
-    Blockinfo(){
-        index = -1;
-        type = BlockType ::data;
-    }
+    Blockinfo() = default;
 };
 
 //磁盘i节点
 struct dinode{
-    uint di_number{};                 //关联文件数，为0则删除该文件
+    std::string filename;             //文件名
     Mod di_mode;		              //权限
     Type di_type;                     //类型
     uint di_uid{};			          //用户id
     uint di_size{};			          //文件大小
+
+
     Blockinfo di_first;               //文件对应首块
+
+
     time_t create_time{};             //创建时间
-    time_t rencent_open{};            //最近打开时间
+    time_t recent_open{};            //最近打开时间
 
 
-
-    explicit dinode(uint uid, int data) : di_first(Blockinfo{data,BlockType ::data}) {
-        di_number = 0;
-        di_mode = Mod ::r__;
-        di_type = Type ::dir;
-        di_uid = uid;
-        di_size = 1;
-
-
-        create_time = time(nullptr);
-        rencent_open = time(nullptr);
-    }
-    explicit dinode()= default;
-
-    std::unordered_map<std::string,int> getChildren(BlockManager* bm){
-        std::unordered_map<std::string,int> res;
-
-        if(this->di_type != Type::dir){
-            return {};
+    std::unordered_map<std::string,int> getCurCatalogue(BlockManager* bm,int curpos){
+        if(this->di_type==Type::dir){
+            std::unordered_map<std::string,int> res = getChildren(bm);
+            res["../"] = curpos;
+            return res;
         } else{
-            int cur = 0;
-            int* size = (int *)bm->ReadBlock(this->di_first.index,cur, sizeof(int));
-            cur += sizeof(int);
-            for(int i=0;i<*size;i++){
-                std::string name;
-                int inode_pos;
-                name = (char *)bm->ReadBlock(di_first.index,cur, 20);
-                cur += 20;
-                inode_pos = *(int *)bm->ReadBlock(di_first.index,cur, sizeof(int));
+            throw std::runtime_error("invalid use of dir block");
+        }
+    }
+    std::unordered_map<std::string,int> getChildren(BlockManager* bm){
+        if(this->di_type == Type::dir){
+            std::unordered_map<std::string,int> res;
+            if(di_first.type == BlockType::data){
+                int cur = 0;
+                int *size = (int *)bm->ReadBlock(di_first.index,cur, sizeof(int));
                 cur += sizeof(int);
-                res.insert(std::make_pair(name,inode_pos));
+                for(int i=0;i<*size;i++){
+                    std::string filename = (char* )bm->ReadBlock(di_first.index,cur, 20);
+                    cur += 20;
+                    int *pos = (int *)bm->ReadBlock(di_first.index,cur, sizeof(int));
+                    cur += sizeof(int);
+                    res.insert(std::make_pair(filename,*pos));
+                    free(&filename[0]);
+                    free(pos);
+                }
+                free(size);
+                return res;
+            } else{
+                std::vector<int> block_data;
+                std::vector<int> block_index;
+                block_index.emplace_back(di_first.index);
+                while(!block_index.empty()){
+                    int cur = 0;
+                    int *size = (int *)bm->ReadBlock(block_index.front(),cur, sizeof(int));
+                    cur += sizeof(int);
+                    for(int i=0;i<*size-1;i++){
+                        Blockinfo* cur_level;
+                        cur_level = (Blockinfo*)bm->ReadBlock(block_index.front(),cur, sizeof(Blockinfo));
+                        cur += sizeof(Blockinfo);
+                        if(cur_level->type==BlockType::data){
+                            block_data.emplace_back(cur_level->index);
+                        } else{
+                           block_index.emplace_back(cur_level->index);
+                        }
+                        free(cur_level);
+                    }
+                    block_index.erase(block_index.begin());
+                }
+                while (!block_data.empty()){
+
+                    for(std::pair<std::string,int> item:getChildren(bm,block_data.front())){
+                        res.insert(item);
+                    }
+                    block_data.erase(block_data.begin());
+                }
+                return res;
+            }
+        } else{
+            throw std::runtime_error("invalid use of dir block");
+        }
+
+    }
+    std::unordered_map<std::string,int> getChildren(BlockManager* bm,int pos){
+        std::unordered_map<std::string,int> res;
+        int cur = 0;
+        int *size = (int *)bm->ReadBlock(di_first.index,cur, sizeof(int));
+        cur += sizeof(int);
+        for(int i=0;i<*size;i++){
+            std::string filename = (char* )bm->ReadBlock(di_first.index,cur, 20);
+            cur += 20;
+            int *pos = (int *)bm->ReadBlock(di_first.index,cur, sizeof(int));
+            cur += sizeof(int);
+            res.insert(std::make_pair(filename,*pos));
+            free(&filename[0]);
+            free(pos);
+        }
+        return res;
+    }
+    std::unordered_map<int,int> getData(BlockManager* bm) {
+        std::unordered_map<int, int> res;
+        if (this->di_type == Type::dir) {
+            if (di_first.type == BlockType::data) {
+                int cur = 0;
+                int *size = (int *) bm->ReadBlock(di_first.index, cur, sizeof(int));
+                res.insert(std::make_pair(di_first.index,-1));
+                free(size);
+                return res;
+            } else {
+                std::vector<int> block_index;
+                int cur_index;
+                block_index.emplace_back(di_first.index);
+                while(!block_index.empty()){
+                    int cur = 0;
+                    int *size = (int *)bm->ReadBlock(block_index.front(),cur, sizeof(int));
+                    cur += sizeof(int);
+                    for(int i=0;i<*size-1;i++){
+                        Blockinfo* cur_level;
+                        cur_level = (Blockinfo*)bm->ReadBlock(block_index.front(),cur, sizeof(Blockinfo));
+                        cur += sizeof(Blockinfo);
+                        if(cur_level->type==BlockType::data){
+                            res.insert(std::make_pair(cur_level->index,block_index.front()));
+                        } else{
+                            block_index.emplace_back(cur_level->index);
+                        }
+                        free(cur_level);
+                    }
+                    block_index.erase(block_index.begin());
+                }
+                return res;
+            }
+        } else{
+            throw std::runtime_error("invalid use of dir block");
+        }
+    }
+    std::unordered_map<int,int> getIndex(BlockManager* bm){
+        std::unordered_map<int, int> res;
+        if (this->di_type == Type::dir) {
+            if (di_first.type == BlockType::data) {
+                return {};
+            } else {
+                std::vector<int> block_index;
+                int cur_index;
+                block_index.emplace_back(di_first.index);
+                while(!block_index.empty()){
+                    int cur = 0;
+                    int *size = (int *)bm->ReadBlock(block_index.front(),cur, sizeof(int));
+                    cur += sizeof(int);
+                    for(int i=0;i<*size-1;i++){
+                        Blockinfo* cur_level;
+                        cur_level = (Blockinfo*)bm->ReadBlock(block_index.front(),cur, sizeof(Blockinfo));
+                        cur += sizeof(Blockinfo);
+                        if(cur_level->type==BlockType::index){
+                            res.insert(std::make_pair(cur_level->index,block_index.front()));
+                            block_index.emplace_back(cur_level->index);
+                        }
+                        free(cur_level);
+                    }
+                    block_index.erase(block_index.begin());
+                }
+                return res;
+            }
+        } else{
+            throw std::runtime_error("invalid use of dir block");
+        }
+    }
+    std::vector<int> getDataBlock(BlockManager* bm){
+
+        if(di_first.type==BlockType::data){
+            return {di_first.index};
+        } else{
+            std::vector<int> block_data;
+            std::vector<int> block_index;
+            block_index.emplace_back(di_first.index);
+            while(!block_index.empty()){
+                int cur = 0;
+                int *size = (int *)bm->ReadBlock(block_index.front(),cur, sizeof(int));
+                cur += sizeof(int);
+                for(int i=0;i<*size-1;i++){
+                    Blockinfo* cur_level;
+                    cur_level = (Blockinfo*)bm->ReadBlock(block_index.front(),cur, sizeof(Blockinfo));
+                    cur += sizeof(Blockinfo);
+                    if(cur_level->type==BlockType::data){
+                        block_data.emplace_back(cur_level->index);
+                    } else{
+                        block_index.emplace_back(cur_level->index);
+                    }
+                    free(cur_level);
+                }
+                block_index.erase(block_index.begin());
+            }
+            return block_data;
+        }
+
+    }
+    std::vector<int> getAllBlock(BlockManager* bm){
+        if(di_first.type==BlockType::data){
+            return {di_first.index};
+        } else{
+            std::vector<int> block_data;
+            std::vector<int> block_index;
+            block_index.emplace_back(di_first.index);
+            while(!block_index.empty()){
+                int cur = 0;
+                int *size = (int *)bm->ReadBlock(block_index.front(),cur, sizeof(int));
+                cur += sizeof(int);
+                for(int i=0;i<*size-1;i++){
+                    Blockinfo* cur_level;
+                    cur_level = (Blockinfo*)bm->ReadBlock(block_index.front(),cur, sizeof(Blockinfo));
+                    cur += sizeof(Blockinfo);
+                    if(cur_level->type==BlockType::data){
+                        block_data.emplace_back(cur_level->index);
+                    } else{
+                        block_index.emplace_back(cur_level->index);
+                        block_data.emplace_back(cur_level->index);
+                    }
+                    free(cur_level);
+                }
+                block_index.erase(block_index.begin());
+            }
+            return block_data;
+        }
+    }
+    bool is_Full_index(BlockManager* bm,int i){
+        int *size = (int*)bm->ReadBlock(i,0, sizeof(int));
+        {
+            free(size);
+            return *size < 25;
+        }
+    }
+    void add_block(BlockManager* bm,int pos,Blockinfo block){
+        int *size = (int*)bm->ReadBlock(pos,0, sizeof(int));
+
+        (*size)++;
+
+        bm->WriteBlock(pos,0, sizeof(int),size);
+        bm->WriteBlock(pos, sizeof(Blockinfo)*(*size)+ sizeof(int), sizeof(Blockinfo),&block);
+
+        free(size);
+    }
+    bool resize(BlockManager* bm,std::unordered_map<std::string,int>* new_data){
+
+        if(this->di_type == Type::dir){
+
+            std::unordered_map<int,int> index_to_parent = this->getIndex(bm);
+            std::unordered_map<int,int> data_to_parent = this->getData(bm);
+            std::vector<int> datablock = getDataBlock(bm);
+            int i = 0;
+            int j = 0;
+
+            while(i < new_data->size()){
+                int *size = new int;
+                if(j >= datablock.size()){
+                    int data = bm->AllocateDataBlock();
+                    datablock.emplace_back(data);
+                    int parent = data_to_parent[datablock[j-1]];
+                    while(is_Full_index(bm,parent)){
+                        parent = index_to_parent[parent];
+                    }
+                    add_block(bm,parent,Blockinfo{data,BlockType ::data});
+                    continue;
+                }
+                if(i>25){
+                    *size = 25;
+                    int cur = 0;
+                    bm->WriteBlock(datablock[j],cur, sizeof(int),size);
+                    cur += 4;
+                    for(int m=0;m<*size;m++){
+                        void * buf = malloc(20);
+                        memcpy(buf,&new_data->begin(i)->first[0],new_data->begin(i)->first.length());
+                        bm->WriteBlock(datablock[j],cur,20,buf);
+                        cur += 20;
+                        memcpy(buf,&new_data->begin(i)->second, sizeof(int));
+                        bm->WriteBlock(datablock[j],cur, sizeof(int),buf);
+                        free(buf);
+                    }
+                    i += *size;
+                } else{
+                    *size = i;
+                    int cur = 0;
+                    bm->WriteBlock(datablock[j],cur, sizeof(int),size);
+                    cur += 4;
+                    for(int m=0;m<*size;m++){
+                        void * buf = malloc(20);
+                        memcpy(buf,&new_data->begin(i)->first[0],new_data->begin(i)->first.length());
+                        bm->WriteBlock(datablock[j],cur,20,buf);
+                        cur += 20;
+                        memcpy(buf,&new_data->begin(i)->second, sizeof(int));
+                        bm->WriteBlock(datablock[j],cur, sizeof(int),buf);
+                        free(buf);
+                    }
+                    i += *size;
+                }
+                j++;
+            }
+            if(j<datablock.size()){
+                if(data_to_parent[datablock[j]] == data_to_parent[datablock[j-1]]){
+                    bm->FreeDataBlock(datablock[j]);
+                } else{
+                    bm->FreeDataBlock(datablock[j]);
+                    bm->FreeIndexBlock(data_to_parent[datablock[j]]);
+                }
             }
 
-            return res;
-        }
-
-    }
-    std::unordered_map<std::string,int> getCurrentCatalogue(BlockManager* bm,uint pos){
-        if(this->di_type == Type::dir){
-            std::unordered_map<std::string,int> res = getChildren(bm);
-
-            res.insert(std::make_pair("../",pos));
-
-            return res;
+            delete new_data;
+            return true;
         } else{
-            return {};
+            delete new_data;
+            throw std::runtime_error("invalid use of dinode of dir");
         }
+
+    }
+    bool resize(BlockManager* bm,const std::string& val){
+
+        if(this->di_type == Type::normal){
+            std::unordered_map<int,int> index_to_parent = this->getIndex(bm);
+            std::unordered_map<int,int> data_to_parent = this->getData(bm);
+            std::vector<int> datablock = getDataBlock(bm);
+            int i = 0;
+            int j = 0;
+
+            while (j<val.length()){
+                if(i>=datablock.size()){
+                    int data = bm->AllocateDataBlock();
+                    datablock.emplace_back(data);
+                    int parent = data_to_parent[datablock[i-1]];
+                    while(is_Full_index(bm,parent)){
+                        parent = index_to_parent[parent];
+                    }
+                    add_block(bm,parent,Blockinfo{data,BlockType ::data});
+                    continue;
+                }
+                void *buf = malloc(512);
+                j += (val.length() > 512) ? 512 : val.length();
+                memcpy(buf, &val, j);
+                bm->WriteBlock(datablock[i],buf);
+                i++;
+            }
+            if(i<datablock.size()){
+                if(data_to_parent[datablock[i]] == data_to_parent[datablock[i-1]]){
+                    bm->FreeDataBlock(datablock[i]);
+                } else{
+                    bm->FreeDataBlock(datablock[i]);
+                    bm->FreeIndexBlock(data_to_parent[datablock[i]]);
+                }
+            }
+
+            return true;
+        } else{
+            throw std::runtime_error("invalid use of dinode of normal");
+        }
+
     }
 
-    void operator = (const dinode& d){
-        di_number = d.di_number;
-        di_mode = d.di_mode;
-        di_type = d.di_type;
-        di_uid = d.di_uid;
-        di_size = d.di_size;
-        di_first = d.di_first;
-        create_time = d.create_time;
-        rencent_open = d.rencent_open;
+    explicit dinode(uint uid,const std::string& filename,
+            int data,Mod mode,Type type=Type::dir,uint size=0):di_first(Blockinfo{data,BlockType ::data}){
+        this->di_mode = mode;
+        this->di_type = type;
+        this->di_uid = uid;
+        this->di_size = size;
+        create_time = time(nullptr);
+        recent_open = time(nullptr);
     }
+    dinode() = default;
+
 
 };
 
@@ -131,25 +416,15 @@ struct inode{
 
     uint i_id;			            //内存i节点标识
     uint pos;                       //磁盘i节点块号
-//    uint offset;                  //磁盘i节点在块内的偏移量
 
 
     dinode cur_node;
 
 
 };
-
-//系统打开表表项
-struct sysopen{
-    uint s_count;                   //访问计数
-    uint fileid;	                //文件描述符
-    inode *s_inode;	                //指向对应内存i节点
-};
-
 //用户打开表表项
 struct usropen{
-    uint u_uid;			            //用户ID
-    std::string filename;           //文件名
+    uint file_id;
     Mod u_mode;                     //打开方式
 };
 
@@ -159,13 +434,7 @@ struct usr{
     Mod uright;                     //用户权限
     char usr_name[10]{};            //用户名
     char password[10]{};            //用户密码
-
-
     uint dir_pos{};                 //初始目录inode位置
-
-
-
-
     friend std::ostream&operator<<(std::ostream& out,usr& user){
 
         out << "uid:" << user.uid << std::endl;
@@ -201,100 +470,59 @@ struct usr{
         this->uright = usr1->uright;
     }
 };
-// 目录表结构
-struct cur_dir{
-    std::string filename;
-    inode* iNode;
-};
-
-// 用户权限表结构
-struct usr_limit{
-    uint file_id;
-    Mod usr_mode;
-};
- 
 class FileManager {
 private:
-
-
-    BlockManager* bm;                                       //磁盘管理器
-
-    std::string dir;                                                //用户所在当前目录名字
-    std::unordered_map<std::string, std::vector<cur_dir> > catalog; //总目录表
-    std::unordered_map<int, std::vector<int> > file_link;           //显式链接表
-    std::unordered_map<uint, std::vector<usr_limit> > limits;       //用户权限表
-    std::unordered_map<std::string, uint> file_id;                  //文件名-文件id映射表
-
-    std::unordered_map<int,int> user_sys;                   //系统打开表和用户打开表之间的映射关系
-    std::unordered_map<int,sysopen> sys_open_table;         //系统打开表
-    std::vector<usropen> user_open_table;                   //用户打开表
-
-
-    usr* cur_usr;                                           //当前使用系统的用户
-    std::unordered_map<std::string,dinode>* cur_catalog;    //当前目录表
-
-    void table_init();                                      //系统表初始化
-    void table_back();                                      //系统表写回
-
-    ///基本完成，需要验证
-    int checkMode(const std::string& filename, Mod mode);   //检测用户权限
-    bool is_exist_usr(const std::string& usrname);          //验证用户名是否重复
-    inode* createInode(int di_pos, dinode di);               // 创建内存i节点
-    void updateLink(int fid, int pos);                      // 更新显式链接表
-    void updateLimits(uint fid, Mod mod);                   // 更新用户权限表        
-    void updateCatalog(std::string filename, inode* iNode); // 更新目录表
-    void deleteLink(int fid);                               // 删除显式链接表中某一项的文件
-
-    void vector_to_map(std::vector<cur_dir> v, std::unordered_map<std::string,dinode>* m); 
-    void updateDir(const std::string& filename);                   // 更新当前目录表 filename-文件名
-    void updateDir(inode* iNode);                           // iNode - 文件对应的i节点指针
-    int inCurDir(const std::string& filename);                     // 判断文件是否在当前目录下
-    int isOpen(const std::string& filename);                       // 判断当前用户是否已经打开某文件
-    void deleteData(const std::string& filename);           // 在当前目录中删除对应数据项
-    void deleteDir(const std::string& filename);            // 删除整个目录以及其中的文件
-    void deleteId(const std::string& filename);             // 删除file-id表中的某一项
+    uint file_id;
+    BlockManager* bm;
+    //用户－系统打开表
+    std::unordered_map<uint,uint> map_table;
+    //用户打开表
+    std::unordered_map<uint,std::unordered_map<std::string,usropen>> user_table;
+    // fid, <引用计数,inode*>
+    std::unordered_map<uint,std::pair<uint,inode*>> sys_table;
+    //i节点和pos的映射
+    std::unordered_map<inode*,uint> tool_table;
+    // inode*野指针表
+    std::vector<inode*> freeInode;
+    // dinode野指针表
+    std::vector<dinode*> freeDinoe;
+    //当前目录(绝对路径)
+    std::string cur_path;
+    dinode* cur_dir_dinode;
+    int cur_pos;
+    //当前目录表<filename, di_pos>
+    std::unordered_map<std::string,int>* cur_dir;
+    //当前用户
+    usr* cur_usr;
+    void inode_copy(inode *iNode, dinode *diNode);
+    void inode_copy(inode iNode, dinode diNode);
+    int isUserOpen(const std::string& filename);
+    void drop();
+    bool is_exist_usr(const std::string& usrname);
 public:
-
-
     explicit FileManager(){
         bm = new BlockManager();
+        file_id = 0;
+        cur_dir = nullptr;
         cur_usr = nullptr;
-        table_init();
+        cur_path = "";
+        cur_dir_dinode = nullptr;
     }
-    ~FileManager(){
-        delete(bm);
-        table_back();
-    }
-
-
-
-    void del_file(const std::string& filename);                                              //删除文件
-    void write_file(const std::string& filname,const std::string& val);                      //写文件
-
-    ///未验证，但基本完成
-    inode* create_file(const std::string& filename,dinode* info= nullptr);                   //创建文件
-    dinode* create_file(const std::string& filename,bool index,dinode* info= nullptr,bool dir=false);
-    inode* open_file(const std::string& filename, Mod mode);                                 //打开文件
-    void close_file(std::string filename);                                                   //关闭文件
-    std::string read_file(const std::string& filename);                                      //读文件
-
-    
-    ///接口
-    uint getFid(const std::string& filename);                                                //获得文件名对应的id
-    inode* find_last_dir(const std::string& dirname);                                        //根据文件名字在目录表中找到其上一层目录的i节点
-    inode* find_dir(const std::string& dirname);                                             //根据文件名字在目录表中找到其对应i节点
-    std::vector<int>* get_data_blocks(std::string filename);                                 //根据文件名获取其对应的数据块
-
-    ///已完成
-    bool verify_usr(const std::string& uname,const std::string& pwd);                       //验证用户信息
-    int create_usr(const std::string& uname,const std::string& pwd,Mod right);              //创建用户
+    std::string ReadFile(dinode* file);
+    void WriteFile(dinode* file,std::string val);
+    void WriteFile(dinode* file,std::unordered_map<std::string,int>* dir);
+    inode* CreateFile(const std::string& filename,Type filetype);
+    void DeleteFile(inode* file);
+    inode* OpenFile(dinode* file);
+    void CloseFile(inode* file);
+    void EnterDir(int dir_pos);
+    void ChangeName(inode* iNode, std::string newname);
+    // 验证用户信息
+    bool verify_usr(const std::string& uname,const std::string& pwd);
+    // 创建新用户
+    int create_usr(const std::string& uname,const std::string& pwd,Mod right);
     void show_usr();
-
-
-    void format();
-
-
 };
 
 
-#endif //FILESYSTEM_FILEMANAGER_H
+#endif //MYFILESYSTEM_FILEMANAGER_H

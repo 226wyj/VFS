@@ -6,6 +6,7 @@
 #define TESTING_SHELL_H
 
 #include <string>
+#include<vector>
 using namespace std;
 class shell {
 private:
@@ -15,7 +16,12 @@ private:
     string file2;
 public:
     string cut(int i,string mainstring);
+    vector <string> cun(string a);
+    void cd__(string name);
+    string cut_1(int i,string mainstring);
+    int count(string mainstring);
     void display();
+    void help();
     bool cp(string file1,string file2);                               //复制指令
     void ls();                               //查看当前目录文件
     bool mkdir(string dir_name);             //创建目录
